@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% set pending_count = 0 %}
+{% block title %}Create Event – EventPass{% endblock %}
+{% block topbar_title %}Create New Event{% endblock %}
+{% block content %}
+<div style="max-width:680px;margin:0 auto">
+  <div class="card anim">
+    <h2 style="font-size:20px;font-weight:800;margin-bottom:22px;color:#fff">➕ Create New Event</h2>
+    <form method="POST">
+      <div class="form-group"><label>Event Title *</label><input name="title" placeholder="e.g. Annual Tech Fest 2024" required></div>
+      <div class="form-group"><label>Description</label><textarea name="description" rows="3" placeholder="Describe the event..." style="resize:vertical"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Category *</label>
+          <select name="category" required>
+            {% for c in ['Technical','Cultural','Sports','Academic','General'] %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label>Entry Fee (₹)</label><input type="number" name="fee" value="0" min="0" step="10"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Date *</label><input type="date" name="date" required></div>
+        <div class="form-group"><label>Time</label><input type="time" name="time"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Venue *</label><input name="venue" placeholder="e.g. Main Auditorium" required></div>
+        <div class="form-group"><label>Capacity</label><input type="number" name="capacity" value="100" min="1"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button class="btn btn-gold" type="submit">🚀 Publish Event</button>
+        <a href="{{ url_for('admin_events') }}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Notifications – EventPass{% endblock %}
+{% block topbar_title %}Notifications{% endblock %}
+{% block content %}
+<div class="hero anim">
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:4px">🔔 Notifications</h2>
+  <p style="color:var(--muted);font-size:13px">{{ notifs|length }} total notification(s)</p>
+</div>
+{% if notifs %}
+  {% for n in notifs %}
+  <div class="anim" style="animation-delay:{{ loop.index0*0.05 }}s;background:var(--surface);border:1px solid {% if not n.is_read %}rgba(34,211,238,.25){% else %}var(--border){% endif %};border-radius:13px;padding:15px 18px;margin-bottom:10px;display:flex;gap:12px">
+    <div style="width:38px;height:38px;background:{% if not n.is_read %}linear-gradient(135deg,var(--accent),#0891b2){% else %}var(--surface2){% endif %};border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">📢</div>
+    <div style="flex:1">
+      <p style="font-size:13.5px;color:var(--text);line-height:1.6">{{ n.message|safe }}</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:5px">{{ n.created_at }}</p>
+    </div>
+    {% if not n.is_read %}<div style="width:7px;height:7px;background:var(--accent);border-radius:50%;margin-top:6px;box-shadow:0 0 6px var(--accent);flex-shrink:0"></div>{% endif %}
+  </div>
+  {% endfor %}
+{% else %}
+<div class="empty anim"><div class="empty-icon">🔔</div><p>No notifications yet.</p></div>
+{% endif %}
+{% endblock %}

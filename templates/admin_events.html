@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% set pending_count = 0 %}
+{% block title %}Manage Events – EventPass{% endblock %}
+{% block topbar_title %}Manage Events{% endblock %}
+{% block content %}
+<div class="hero anim">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div><h2 style="font-size:20px;font-weight:800;margin-bottom:4px">📅 All Events</h2><p style="color:var(--muted);font-size:13px">{{ events|length }} event(s) total</p></div>
+    <a href="{{ url_for('admin_create_event') }}" class="btn btn-gold">➕ Create Event</a>
+  </div>
+</div>
+<div class="card anim d1">
+  {% if events %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Title</th><th>Category</th><th>Date</th><th>Venue</th><th>Registered</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for ev in events %}
+      <tr>
+        <td style="color:var(--text);font-weight:500;max-width:200px">{{ ev.title }}</td>
+        <td><span class="badge badge-upcoming">{{ ev.category }}</span></td>
+        <td>{{ ev.date }}</td>
+        <td style="font-size:12px">{{ ev.venue }}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-weight:600;color:var(--text)">{{ ev.registered }}/{{ ev.capacity }}</span>
+            <div style="width:40px;height:3px;background:var(--border);border-radius:3px"><div style="height:100%;width:{{ [(ev.registered/(ev.capacity or 1)*100)|int,100]|min }}%;background:var(--accent);border-radius:3px"></div></div>
+          </div>
+        </td>
+        <td><span class="badge badge-{{ ev.status }}">{{ ev.status|capitalize }}</span></td>
+        <td>
+          <div style="display:flex;gap:5px">
+            <a href="{{ url_for('admin_attendees', eid=ev.id) }}" class="btn btn-outline btn-sm" title="Attendees">👥</a>
+            <a href="{{ url_for('admin_edit_event', eid=ev.id) }}" class="btn btn-outline btn-sm" title="Edit">✏️</a>
+            <form method="POST" action="{{ url_for('admin_delete_event', eid=ev.id) }}" style="display:inline" onsubmit="return confirm('Delete this event and all its registrations?')">
+              <button class="btn btn-danger btn-sm" title="Delete">🗑</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty"><div class="empty-icon">📅</div><p>No events yet. <a href="{{ url_for('admin_create_event') }}" style="color:var(--accent)">Create one →</a></p></div>
+  {% endif %}
+</div>
+{% endblock %}

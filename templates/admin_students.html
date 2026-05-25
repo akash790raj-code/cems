@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% set pending_count = 0 %}
+{% block title %}Students – EventPass{% endblock %}
+{% block topbar_title %}Student Management{% endblock %}
+{% block content %}
+
+<div class="hero anim">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+    <div>
+      <h2 style="font-size:20px;font-weight:800;margin-bottom:4px">👥 All Students</h2>
+      <p style="color:var(--muted);font-size:13px">{{ students|length }} registered student(s)</p>
+    </div>
+    <form method="GET" style="display:flex;gap:10px">
+      <input name="q" value="{{ search }}" placeholder="🔍 Search name, username, roll no..." style="width:280px">
+      <button class="btn btn-primary" type="submit">Search</button>
+      {% if search %}<a href="{{ url_for('admin_students') }}" class="btn btn-outline">✕</a>{% endif %}
+    </form>
+  </div>
+</div>
+
+<div class="card anim d1">
+  {% if students %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Username</th>
+          <th>Exam Roll No</th>
+          <th>Class Roll No</th>
+          <th>Phone</th>
+          <th>Course</th>
+          <th>Registered</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for s in students %}
+      <tr>
+        <td style="color:var(--muted);font-size:12px">{{ loop.index }}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:9px">
+            <div style="width:30px;height:30px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#000;flex-shrink:0">{{ s.name[0].upper() }}</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--text)">{{ s.name }}</div>
+              <div style="font-size:11px;color:var(--muted)">{{ s.father_name }}</div>
+            </div>
+          </div>
+        </td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent)">@{{ s.username }}</td>
+        <td style="font-size:12px;font-weight:500;color:var(--text)">{{ s.exam_roll_no }}</td>
+        <td style="font-size:12px">{{ s.class_roll_no }}</td>
+        <td style="font-size:12px">{{ s.phone }}</td>
+        <td>{% if s.course %}<span class="badge badge-upcoming" style="font-size:10px">{{ s.course }}</span>{% else %}<span style="color:var(--muted);font-size:11px">—</span>{% endif %}</td>
+        <td style="font-size:11px;color:var(--muted)">{{ s.created_at[:10] }}</td>
+        <td><a href="{{ url_for('admin_student_detail', sid=s.id) }}" class="btn btn-outline btn-sm">View →</a></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty"><div class="empty-icon">👥</div><p>No students found{% if search %} for "{{ search }}"{% endif %}.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

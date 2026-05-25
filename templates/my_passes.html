@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}My Passes – EventPass{% endblock %}
+{% block topbar_title %}My Event Passes{% endblock %}
+{% block content %}
+<div class="hero anim">
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:4px">🎟 My Event Passes</h2>
+  <p style="color:var(--muted);font-size:13px">{{ passes|length }} registration(s) total</p>
+</div>
+
+{% if passes %}
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px">
+  {% for p in passes %}
+  <div class="pass-card card-hover anim" style="animation-delay:{{ loop.index0*0.07 }}s">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--accent);margin-bottom:5px">{{ p.category }}</div>
+        <h3 style="font-size:16px;font-weight:700;color:#fff;line-height:1.3">{{ p.title }}</h3>
+      </div>
+      <span class="badge badge-{{ p.pass_status }}">
+        {% if p.pass_status=='approved' %}✅{% elif p.pass_status=='pending' %}⏳{% else %}❌{% endif %}
+        {{ p.pass_status|capitalize }}
+      </span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:16px">
+      <span style="font-size:12px;color:var(--muted)">📅 {{ p.date }}{% if p.time %} · {{ p.time }}{% endif %}</span>
+      <span style="font-size:12px;color:var(--muted)">📍 {{ p.venue }}</span>
+      <span style="font-size:11px;color:var(--subtle);font-family:'JetBrains Mono',monospace">
+        {% if p.serial_number %}Serial: {{ p.serial_number }} · {% endif %}ID: {{ p.pass_id[:20].upper() }}...
+      </span>
+    </div>
+
+    {% if p.pass_status == 'approved' %}
+    <div style="display:flex;gap:8px">
+      <a href="{{ url_for('view_pass', pass_id=p.pass_id) }}" class="btn btn-primary btn-sm" style="flex:1;justify-content:center">👁 View Pass</a>
+      <a href="{{ url_for('download_pass', pass_id=p.pass_id) }}" class="btn btn-outline btn-sm" style="flex:1;justify-content:center">⬇ Download</a>
+    </div>
+    {% elif p.pass_status == 'pending' %}
+    <div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);border-radius:9px;padding:10px;text-align:center;font-size:12px;color:#fcd34d">
+      ⏳ Waiting for admin approval...
+    </div>
+    {% else %}
+    <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:9px;padding:10px;text-align:center;font-size:12px;color:#fca5a5">
+      ❌ Pass was rejected. Check notifications for reason.
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty anim">
+  <div class="empty-icon">🎟</div>
+  <h3 style="font-size:18px;margin-bottom:8px">No passes yet!</h3>
+  <p style="margin-bottom:18px">Register for events from the dashboard to get passes.</p>
+  <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Browse Events →</a>
+</div>
+{% endif %}
+{% endblock %}

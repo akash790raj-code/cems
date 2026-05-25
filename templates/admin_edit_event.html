@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% set pending_count = 0 %}
+{% block title %}Edit Event – EventPass{% endblock %}
+{% block topbar_title %}Edit Event{% endblock %}
+{% block content %}
+<div style="max-width:680px;margin:0 auto">
+  <div class="card anim">
+    <h2 style="font-size:20px;font-weight:800;margin-bottom:22px">✏️ Edit: {{ ev.title }}</h2>
+    <form method="POST">
+      <div class="form-group"><label>Event Title</label><input name="title" value="{{ ev.title }}" required></div>
+      <div class="form-group"><label>Description</label><textarea name="description" rows="3" style="resize:vertical">{{ ev.description }}</textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Category</label>
+          <select name="category">{% for c in ['Technical','Cultural','Sports','Academic','General'] %}<option value="{{ c }}" {% if ev.category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+        </div>
+        <div class="form-group"><label>Status</label>
+          <select name="status"><option value="upcoming" {% if ev.status=='upcoming' %}selected{% endif %}>Upcoming</option><option value="completed" {% if ev.status=='completed' %}selected{% endif %}>Completed</option><option value="cancelled" {% if ev.status=='cancelled' %}selected{% endif %}>Cancelled</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Date</label><input type="date" name="date" value="{{ ev.date }}" required></div>
+        <div class="form-group"><label>Time</label><input type="time" name="time" value="{{ ev.time or '' }}"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Venue</label><input name="venue" value="{{ ev.venue }}" required></div>
+        <div class="form-group"><label>Capacity</label><input type="number" name="capacity" value="{{ ev.capacity }}"></div>
+      </div>
+      <div class="form-group"><label>Fee (₹)</label><input type="number" name="fee" value="{{ ev.fee }}" step="10"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-gold" type="submit">💾 Save Changes</button>
+        <a href="{{ url_for('admin_events') }}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

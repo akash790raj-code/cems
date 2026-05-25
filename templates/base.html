@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}EventPass{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#d2e1cc;
+  --surface:#ffffff;
+  --surface2:#f8faf7;
+  --border:#5e8d83;
+  --accent:#0f444c;
+  --accent2:#114538;
+  --gold:#f59e0b;
+  --green:#10b981;
+  --red:#ef4444;
+  --purple:#8b5cf6;
+  --text:#161d23;
+  --muted:#5e8d83;
+  --subtle:#114538;
+  --dark-slate:#161d23;
+  --teal:#0f444c;
+  --forest:#114538;
+  --sage:#5e8d83;
+  --light-sage:#d2e1cc;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;font-weight:400}
+a{text-decoration:none;color:inherit}
+h1,h2,h3,h4,h5,h6{font-family:'Poppins',sans-serif;font-weight:600}
+code,pre,.mono{font-family:'JetBrains Mono',monospace}
+
+/* ── SIDEBAR ──────────────────── */
+.sidebar{
+  position:fixed;left:0;top:0;height:100vh;width:248px;
+  background:var(--surface);
+  border-right:2px solid var(--border);
+  display:flex;flex-direction:column;z-index:200;
+  box-shadow:4px 0 20px rgba(22,29,35,0.1);
+}
+.logo{padding:24px 20px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:12px}
+.logo-badge{
+  width:42px;height:42px;
+  background:linear-gradient(135deg,var(--teal),var(--forest));
+  border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;color:var(--light-sage);
+  box-shadow:0 4px 16px rgba(15,68,76,0.3);
+}
+.logo-text{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.3px;font-family:'Poppins',sans-serif}
+.logo-sub{font-size:10px;color:var(--muted);margin-top:1px;text-transform:uppercase;letter-spacing:1px;font-family:'Inter',sans-serif}
+
+.nav{flex:1;padding:16px 12px;overflow-y:auto}
+.nav-label{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin:14px 8px 6px;font-weight:600;font-family:'Inter',sans-serif}
+.nav a{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;border-radius:12px;
+  color:var(--subtle);font-size:14px;font-weight:500;
+  margin-bottom:3px;transition:all .3s ease;position:relative;
+  font-family:'Inter',sans-serif;
+}
+.nav a:hover{background:rgba(15,68,76,.1);color:var(--teal);transform:translateX(4px)}
+.nav a.active{
+  background:linear-gradient(90deg,rgba(15,68,76,.15),rgba(17,69,56,.08));
+  color:var(--teal);
+  border-left:3px solid var(--teal);
+  font-weight:600;
+}
+.nav a .icon{font-size:16px;width:20px;text-align:center}
+.nav-badge{
+  margin-left:auto;background:var(--teal);color:var(--light-sage);
+  font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;
+  min-width:22px;text-align:center;font-family:'JetBrains Mono',monospace;
+}
+
+.sidebar-footer{padding:14px;border-top:2px solid var(--border)}
+.user-pill{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface2);border:2px solid var(--border);
+  border-radius:14px;padding:12px 14px;transition:all .3s ease;
+}
+.user-pill:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:0 4px 12px rgba(15,68,76,0.15)}
+.avatar{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,var(--teal),var(--forest));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:var(--light-sage);flex-shrink:0;
+  font-family:'Poppins',sans-serif;
+}
+.user-info .uname{font-size:13px;font-weight:600;color:var(--text);font-family:'Inter',sans-serif}
+.user-info .urole{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-family:'Inter',sans-serif}
+.logout-link{margin-left:auto;color:var(--muted);font-size:18px;transition:all .3s ease;cursor:pointer;border:none;background:none;padding:4px}
+.logout-link:hover{color:var(--red);transform:scale(1.1)}
+
+/* ── MAIN ─────────────────────── */
+.main{margin-left:248px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{
+  background:var(--surface);border-bottom:2px solid var(--border);
+  height:68px;padding:0 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px rgba(22,29,35,0.08);
+}
+.topbar-title{font-size:20px;font-weight:700;color:var(--text);font-family:'Poppins',sans-serif}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.notif-btn{
+  position:relative;background:var(--surface2);border:2px solid var(--border);
+  color:var(--subtle);padding:8px 14px;border-radius:12px;
+  cursor:pointer;font-size:18px;transition:all .3s ease;
+}
+.notif-btn:hover{border-color:var(--teal);color:var(--teal);transform:translateY(-2px);box-shadow:0 4px 12px rgba(15,68,76,0.15)}
+.notif-dot{
+  position:absolute;top:6px;right:6px;width:8px;height:8px;
+  background:var(--teal);border-radius:50%;display:none;
+  box-shadow:0 0 8px var(--teal);
+}
+.notif-dot.show{display:block}
+.content{padding:32px;flex:1}
+
+/* ── ALERTS ───────────────────── */
+.alert{padding:14px 18px;border-radius:12px;margin-bottom:20px;font-size:14px;border:2px solid;display:flex;align-items:center;gap:10px;font-family:'Inter',sans-serif;font-weight:500}
+.alert-success{background:rgba(16,185,129,.12);border-color:var(--green);color:#047857}
+.alert-error  {background:rgba(239,68,68,.12); border-color:var(--red); color:#dc2626}
+.alert-warning{background:rgba(245,158,11,.12);border-color:var(--gold);color:#d97706}
+.alert-info   {background:rgba(15,68,76,.12);border-color:var(--teal);color:var(--teal)}
+
+/* ── CARDS ────────────────────── */
+.card{background:var(--surface);border:2px solid var(--border);border-radius:18px;padding:26px;box-shadow:0 4px 16px rgba(22,29,35,0.08)}
+.card-hover{transition:all .3s ease}
+.card-hover:hover{border-color:var(--teal);transform:translateY(-4px);box-shadow:0 20px 40px rgba(15,68,76,.2)}
+
+/* ── STAT GRID ────────────────── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{
+  background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:20px;
+  position:relative;overflow:hidden;transition:all .3s ease;
+}
+.stat-card:hover{border-color:var(--teal);transform:translateY(-4px);box-shadow:0 12px 32px rgba(15,68,76,.15)}
+.stat-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at top left,var(--sc,rgba(15,68,76,.08)),transparent 65%);
+  pointer-events:none;
+}
+.stat-icon{font-size:28px;margin-bottom:12px}
+.stat-num{font-size:32px;font-weight:800;color:var(--text);line-height:1;font-family:'Poppins',sans-serif}
+.stat-label{font-size:11px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:1px;font-family:'Inter',sans-serif}
+
+/* ── EVENTS GRID ──────────────── */
+.events-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.event-card{
+  background:var(--surface);border:2px solid var(--border);border-radius:18px;
+  overflow:hidden;transition:all .3s ease;
+}
+.event-card:hover{border-color:var(--teal);transform:translateY(-6px);box-shadow:0 24px 60px rgba(15,68,76,.25)}
+.event-banner{height:140px;display:flex;align-items:center;justify-content:center;font-size:56px;position:relative}
+.event-banner.Technical{background:linear-gradient(135deg,var(--light-sage),#c8d6c2)}
+.event-banner.Cultural {background:linear-gradient(135deg,#e8f5e8,#d4edda)}
+.event-banner.Sports   {background:linear-gradient(135deg,#e0f2e0,#c3e6c3)}
+.event-banner.Academic {background:linear-gradient(135deg,#e6f3f3,#cce7e7)}
+.event-banner.General  {background:linear-gradient(135deg,var(--surface2),#f0f4f0)}
+.event-body{padding:18px}
+.event-cat{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:8px;font-family:'Inter',sans-serif}
+.cat-Technical{color:var(--teal)} .cat-Cultural{color:var(--forest)} .cat-Sports{color:var(--sage)} .cat-Academic{color:var(--teal)} .cat-General{color:var(--subtle)}
+.event-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.3;font-family:'Poppins',sans-serif}
+.event-meta span{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:5px;font-family:'Inter',sans-serif}
+.cap-bar{height:4px;background:var(--border);border-radius:4px;margin-top:6px;width:80px}
+.cap-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--teal),var(--forest))}
+.event-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:2px solid var(--border);margin-top:12px}
+
+/* ── BUTTONS ──────────────────── */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .3s ease;font-family:'Inter',sans-serif}
+.btn-primary{background:linear-gradient(135deg,var(--teal),var(--forest));color:var(--light-sage);font-weight:700}
+.btn-primary:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,68,76,.4)}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--subtle)}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal);background:rgba(15,68,76,.05)}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--red);border:2px solid rgba(239,68,68,.3)}
+.btn-danger:hover{background:var(--red);color:#fff;transform:translateY(-2px)}
+.btn-success{background:linear-gradient(135deg,#047857,var(--green));color:#fff}
+.btn-success:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(16,185,129,.3)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#d97706);color:#000;font-weight:700}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,158,11,.3)}
+.btn-sm{padding:8px 16px;font-size:13px}
+
+/* ── FORMS ────────────────────── */
+.form-group{margin-bottom:20px}
+label{font-size:12px;color:var(--subtle);display:block;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;font-family:'Inter',sans-serif}
+input,textarea,select{
+  width:100%;background:var(--surface2);border:2px solid var(--border);
+  border-radius:12px;padding:12px 16px;color:var(--text);
+  font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:all .3s ease;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 4px rgba(15,68,76,.1);transform:translateY(-1px)}
+select option{background:var(--surface2)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* ── BADGE ────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:24px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif}
+.badge-pending {background:rgba(245,158,11,.18);color:#d97706;border:2px solid rgba(245,158,11,.4)}
+.badge-approved{background:rgba(16,185,129,.18);color:#047857;border:2px solid rgba(16,185,129,.4)}
+.badge-rejected{background:rgba(239,68,68,.18); color:#dc2626;border:2px solid rgba(239,68,68,.4)}
+.badge-upcoming{background:rgba(15,68,76,.18);color:var(--teal);border:2px solid rgba(15,68,76,.4)}
+.badge-completed{background:rgba(94,141,131,.18);color:var(--sage);border:2px solid rgba(94,141,131,.4)}
+
+/* ── TABLE ────────────────────── */
+.table-wrap{overflow-x:auto;border-radius:16px;border:2px solid var(--border);box-shadow:0 4px 16px rgba(22,29,35,0.08)}
+table{width:100%;border-collapse:collapse;font-size:14px;font-family:'Inter',sans-serif}
+thead th{background:var(--surface2);padding:14px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted);font-weight:700;white-space:nowrap;font-family:'Inter',sans-serif}
+tbody tr{border-bottom:2px solid var(--border);transition:all .2s ease}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(15,68,76,.06);transform:translateX(2px)}
+tbody td{padding:14px 16px;color:var(--subtle);vertical-align:middle}
+
+/* ── PAGE HERO ────────────────── */
+.hero{
+  background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:2px solid var(--border);border-radius:20px;padding:30px;margin-bottom:28px;
+  position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(22,29,35,0.1);
+}
+.hero::after{
+  content:'';position:absolute;right:-80px;top:-80px;
+  width:280px;height:280px;
+  background:radial-gradient(circle,rgba(15,68,76,.12),transparent 70%);
+  pointer-events:none;
+}
+
+/* ── PASS CARD ────────────────── */
+.pass-card{
+  background:linear-gradient(135deg,var(--surface),var(--surface2));
+  border:2px solid var(--border);border-radius:20px;padding:28px;
+  position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(22,29,35,0.1);
+}
+.pass-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,var(--teal),var(--forest))}
+
+/* ── EMPTY ────────────────────── */
+.empty{text-align:center;padding:64px 24px;color:var(--muted);font-family:'Inter',sans-serif}
+.empty-icon{font-size:56px;margin-bottom:16px;opacity:.5}
+
+/* ── SCROLLBAR ────────────────── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+
+/* ── ANIMATIONS ───────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:fadeUp .5s ease both}
+.d1{animation-delay:.08s}.d2{animation-delay:.16s}.d3{animation-delay:.24s}.d4{animation-delay:.32s}
+</style>
+</head>
+<body>
+{% if session.get('student_id') %}
+<!-- STUDENT SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-badge">🎓</div>
+    <div>
+      <div class="logo-text">EventPass</div>
+      <div class="logo-sub">Event Portal</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-label">Student</div>
+    <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint=='dashboard' %}active{% endif %}">
+      <span class="icon">⊞</span> Dashboard
+    </a>
+    <a href="{{ url_for('my_passes') }}" class="{% if request.endpoint in ['my_passes','view_pass'] %}active{% endif %}">
+      <span class="icon">🎟</span> My Passes
+    </a>
+    <div class="nav-label">Account</div>
+    <a href="{{ url_for('notifications') }}" class="{% if request.endpoint=='notifications' %}active{% endif %}">
+      <span class="icon">🔔</span> Notifications
+      <span class="nav-badge" id="nb" style="display:none"></span>
+    </a>
+    <a href="{{ url_for('profile') }}" class="{% if request.endpoint=='profile' %}active{% endif %}">
+      <span class="icon">👤</span> Profile
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="avatar">{{ session.name[0].upper() }}</div>
+      <div class="user-info">
+        <div class="uname">{{ session.name[:16] }}</div>
+        <div class="urole">Student</div>
+      </div>
+      <a href="{{ url_for('logout') }}" class="logout-link" title="Logout">⏻</a>
+    </div>
+  </div>
+</aside>
+
+{% elif session.get('is_admin') %}
+<!-- ADMIN SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-badge" style="background:linear-gradient(135deg,#f59e0b,#d97706)">🛡</div>
+    <div>
+      <div class="logo-text">EventPass</div>
+      <div class="logo-sub">Admin Panel</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-label">Overview</div>
+    <a href="{{ url_for('admin_dashboard') }}" class="{% if request.endpoint=='admin_dashboard' %}active{% endif %}">
+      <span class="icon">⊞</span> Dashboard
+    </a>
+    <div class="nav-label">Manage</div>
+    <a href="{{ url_for('admin_events') }}" class="{% if 'admin_event' in request.endpoint %}active{% endif %}">
+      <span class="icon">📅</span> Events
+    </a>
+    <a href="{{ url_for('admin_passes') }}" class="{% if request.endpoint=='admin_passes' %}active{% endif %}">
+      <span class="icon">🎟</span> Passes
+      {% with c=pending_count|default(0) %}{% if c > 0 %}<span class="nav-badge">{{ c }}</span>{% endif %}{% endwith %}
+    </a>
+    <a href="{{ url_for('admin_students') }}" class="{% if 'admin_student' in request.endpoint %}active{% endif %}">
+      <span class="icon">👥</span> Students
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#000">A</div>
+      <div class="user-info">
+        <div class="uname">Administrator</div>
+        <div class="urole">Admin</div>
+      </div>
+      <a href="{{ url_for('admin_logout') }}" class="logout-link" title="Logout">⏻</a>
+    </div>
+  </div>
+</aside>
+{% endif %}
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">{% block topbar_title %}EventPass{% endblock %}</div>
+    <div class="topbar-right">
+      {% if session.get('student_id') %}
+      <a href="{{ url_for('notifications') }}" class="notif-btn">
+        🔔<span class="notif-dot" id="nd"></span>
+      </a>
+      {% endif %}
+      <div class="avatar" style="width:34px;height:34px;font-size:13px;border-radius:9px">
+        {% if session.get('student_id') %}{{ session.name[0].upper() }}{% elif session.get('is_admin') %}A{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="alert alert-{{ cat }}">
+            {% if cat=='success' %}✅{% elif cat=='error' %}❌{% elif cat=='warning' %}⚠️{% else %}ℹ️{% endif %}
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+<script>
+async function pollNotif(){
+  try{
+    const r=await fetch('/notif_count');
+    const d=await r.json();
+    const nb=document.getElementById('nb');
+    const nd=document.getElementById('nd');
+    if(d.count>0){
+      if(nb){nb.textContent=d.count;nb.style.display='inline-flex';}
+      if(nd) nd.classList.add('show');
+    } else {
+      if(nb) nb.style.display='none';
+      if(nd) nd.classList.remove('show');
+    }
+  }catch(e){}
+}
+pollNotif();
+setInterval(pollNotif,25000);
+</script>
+</body>
+</html>

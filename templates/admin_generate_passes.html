@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% block title %}Generate Passes – {{ ev.title }}{% endblock %}
+{% block topbar_title %}Generate Event Passes{% endblock %}
+{% block content %}
+
+<div class="hero anim">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+    <div>
+      <p style="font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:#4682b4;margin-bottom:5px">{{ ev.category }}</p>
+      <h2 style="font-size:20px;font-weight:800;margin-bottom:4px">{{ ev.title }}</h2>
+      <p style="color:var(--muted);font-size:13px">📅 {{ ev.date }} &nbsp;·&nbsp; 📍 {{ ev.venue }} &nbsp;·&nbsp; {{ students|length }} registered</p>
+    </div>
+    <a href="{{ url_for('admin_attendees', eid=ev.id) }}" class="btn btn-outline">← Back to Attendees</a>
+  </div>
+</div>
+
+<!-- PASS GENERATION FORM -->
+<div class="card anim d1" style="background:rgba(70,130,180,.05);border-color:rgba(70,130,180,.2)">
+  <form method="POST" id="generatePassForm">
+    <div style="margin-bottom:24px">
+      <h3 style="font-size:18px;font-weight:700;color:#4682b4;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+        🎟 Generate Event Passes
+      </h3>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:20px">
+        Select students and generate professional passes as PDF. Each pass will be on a separate page with QR codes and complete details.
+      </p>
+      
+      <!-- SELECTION TYPE -->
+      <div style="margin-bottom:20px">
+        <label style="font-size:12px;font-weight:600;color:#4682b4;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block">Selection Type</label>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px 16px;border:2px solid rgba(70,130,180,.2);border-radius:8px;background:rgba(70,130,180,.05);transition:.2s" onclick="toggleSelectionType('all')">
+            <input type="radio" name="selection_type" value="all" id="select_all" style="margin:0" onchange="toggleStudentSelection()">
+            <span style="font-size:14px;font-weight:500;color:#4682b4">📋 All Registered Students</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px 16px;border:2px solid rgba(70,130,180,.2);border-radius:8px;background:rgba(70,130,180,.05);transition:.2s" onclick="toggleSelectionType('selected')">
+            <input type="radio" name="selection_type" value="selected" id="select_custom" style="margin:0" onchange="toggleStudentSelection()">
+            <span style="font-size:14px;font-weight:500;color:#4682b4">👥 Selected Students</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDENT SELECTION -->
+    <div id="studentSelection" style="display:none;margin-bottom:24px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <label style="font-size:12px;font-weight:600;color:#4682b4;text-transform:uppercase;letter-spacing:1px">Select Students</label>
+        <div style="display:flex;gap:8px">
+          <button type="button" onclick="selectAllStudents()" class="btn btn-outline btn-sm">Select All</button>
+          <button type="button" onclick="deselectAllStudents()" class="btn btn-outline btn-sm">Deselect All</button>
+        </div>
+      </div>
+      
+      {% if students %}
+      <div style="max-height:400px;overflow-y:auto;border:1px solid rgba(70,130,180,.2);border-radius:8px;background:rgba(240,248,255,.5)">
+        {% for student in students %}
+        <label style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid rgba(70,130,180,.1);cursor:pointer;transition:.2s;{% if student.pass_status == 'rejected' %}opacity:0.6;background:rgba(239,68,68,.05){% endif %}" onmouseover="{% if student.pass_status != 'rejected' %}this.style.background='rgba(70,130,180,.1)'{% endif %}" onmouseout="{% if student.pass_status != 'rejected' %}this.style.background='transparent'{% else %}this.style.background='rgba(239,68,68,.05)'{% endif %}">
+          <input type="checkbox" name="student_ids" value="{{ student.student_id }}" style="margin:0;transform:scale(1.2)" {% if student.pass_status == 'rejected' %}title="Rejected student - can be manually selected but will generate rejected pass"{% endif %}>
+          <div style="display:flex;align-items:center;gap:10px;flex:1">
+            <div style="width:32px;height:32px;background:{% if student.pass_status == 'rejected' %}linear-gradient(135deg,#ef4444,#fca5a5){% else %}linear-gradient(135deg,#4682b4,#87ceeb){% endif %};border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0">
+              {{ student.name[0].upper() }}
+            </div>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:600;color:{% if student.pass_status == 'rejected' %}#dc2626{% else %}#1e3a8a{% endif %}">{{ student.name }}</div>
+              <div style="font-size:12px;color:var(--muted)">{{ student.class_roll_no }} • {{ student.exam_roll_no }} • {{ student.phone }}</div>
+            </div>
+            <div style="flex-shrink:0">
+              <span class="badge badge-{{ student.pass_status }}" style="font-size:10px">
+                {% if student.pass_status=='approved' %}✅{% elif student.pass_status=='pending' %}⏳{% else %}❌{% endif %}
+                {{ student.pass_status|capitalize }}
+              </span>
+              {% if student.pass_status == 'rejected' %}
+              <div style="font-size:10px;color:#dc2626;margin-top:2px">Manual selection only</div>
+              {% endif %}
+            </div>
+          </div>
+        </label>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="text-align:center;padding:40px;color:var(--muted)">
+        <div style="font-size:48px;margin-bottom:12px">👥</div>
+        <p>No students registered for this event yet.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- GENERATE BUTTON -->
+    <div style="display:flex;gap:12px;justify-content:flex-end">
+      <button type="button" onclick="window.history.back()" class="btn btn-outline">Cancel</button>
+      <button type="submit" class="btn" style="background:#4682b4;color:white;display:flex;align-items:center;gap:8px" id="generateBtn" disabled>
+        <span>📄</span>
+        <span>Generate PDF Passes</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- INFO CARD -->
+<div class="card anim d2" style="margin-top:20px">
+  <h4 style="font-size:14px;font-weight:600;color:#4682b4;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+    ℹ️ Pass Generation Information
+  </h4>
+  <ul style="color:var(--muted);font-size:13px;line-height:1.8;padding-left:20px">
+    <li><strong>PDF Format:</strong> Each pass will be on a separate page in the PDF</li>
+    <li><strong>Serial Numbers:</strong> Automatic sequential numbering (EVEPASS0001, EVEPASS0002, etc.)</li>
+    <li><strong>QR Codes:</strong> Complete student and event details embedded for verification</li>
+    <li><strong>Pass Design:</strong> Approved passes use sage theme, rejected passes use red theme</li>
+    <li><strong>Select All:</strong> Excludes rejected students (they can be manually selected)</li>
+    <li><strong>Rejected Students:</strong> Can be manually selected but will generate rejected passes</li>
+    <li><strong>Auto Approval:</strong> Pending students will be automatically approved</li>
+    <li><strong>Notifications:</strong> Students will receive status update notifications</li>
+  </ul>
+</div>
+
+<script>
+function toggleSelectionType(type) {
+  const studentSelection = document.getElementById('studentSelection');
+  const generateBtn = document.getElementById('generateBtn');
+  
+  if (type === 'all') {
+    studentSelection.style.display = 'none';
+    generateBtn.disabled = false;
+  } else {
+    studentSelection.style.display = 'block';
+    updateGenerateButton();
+  }
+}
+
+function toggleStudentSelection() {
+  const selectAll = document.getElementById('select_all');
+  const selectCustom = document.getElementById('select_custom');
+  
+  if (selectAll.checked) {
+    toggleSelectionType('all');
+  } else if (selectCustom.checked) {
+    toggleSelectionType('selected');
+  }
+}
+
+function selectAllStudents() {
+  const checkboxes = document.querySelectorAll('input[name="student_ids"]');
+  checkboxes.forEach(cb => {
+    // Only select non-rejected students for "Select All"
+    const statusBadge = cb.closest('label').querySelector('.badge');
+    const isRejected = statusBadge && statusBadge.textContent.includes('Rejected');
+    if (!isRejected) {
+      cb.checked = true;
+    }
+  });
+  updateGenerateButton();
+}
+
+function deselectAllStudents() {
+  const checkboxes = document.querySelectorAll('input[name="student_ids"]');
+  checkboxes.forEach(cb => cb.checked = false);
+  updateGenerateButton();
+}
+
+function updateGenerateButton() {
+  const selectCustom = document.getElementById('select_custom');
+  const generateBtn = document.getElementById('generateBtn');
+  
+  if (selectCustom.checked) {
+    const checkedBoxes = document.querySelectorAll('input[name="student_ids"]:checked');
+    generateBtn.disabled = checkedBoxes.length === 0;
+  }
+}
+
+// Add event listeners to checkboxes
+document.addEventListener('DOMContentLoaded', function() {
+  const checkboxes = document.querySelectorAll('input[name="student_ids"]');
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', updateGenerateButton);
+  });
+  
+  // Form submission handling
+  document.getElementById('generatePassForm').addEventListener('submit', function(e) {
+    const generateBtn = document.getElementById('generateBtn');
+    generateBtn.innerHTML = '<span>⏳</span><span>Generating PDF...</span>';
+    generateBtn.disabled = true;
+  });
+});
+</script>
+
+<style>
+.btn {
+  transition: all 0.2s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(70,130,180,0.3);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input[type="radio"]:checked + span {
+  color: #1e3a8a !important;
+}
+
+label:has(input[type="radio"]:checked) {
+  border-color: #4682b4 !important;
+  background: rgba(70,130,180,.15) !important;
+}
+</style>
+
+{% endblock %}

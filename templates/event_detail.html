@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}{{ ev.title }} – EventPass{% endblock %}
+{% block topbar_title %}Event Details{% endblock %}
+{% block content %}
+{% set icons = {'Technical':'💻','Cultural':'🎭','Sports':'⚽','Academic':'📚','General':'🎪'} %}
+<div style="display:flex;gap:22px;flex-wrap:wrap">
+  <div style="flex:2;min-width:280px">
+    <div class="event-banner {{ ev.category }} anim" style="height:180px;border-radius:16px;font-size:70px;display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+      {{ icons.get(ev.category,'🎪') }}
+    </div>
+    <div class="card anim d1">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+        <div>
+          <div class="event-cat cat-{{ ev.category }}" style="margin-bottom:6px">{{ ev.category }}</div>
+          <h2 style="font-size:22px;font-weight:800;color:#fff">{{ ev.title }}</h2>
+        </div>
+        <span class="badge badge-{{ ev.status }}">{{ ev.status|capitalize }}</span>
+      </div>
+      <p style="color:var(--subtle);font-size:13.5px;line-height:1.7;margin-bottom:18px">{{ ev.description }}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        {% for ico,lbl,val in [('📅','Date',ev.date),('⏰','Time',ev.time or 'TBA'),('📍','Venue',ev.venue),('🪑','Capacity',ev.capacity|string+' seats'),('💰','Entry Fee','₹'+ev.fee|string if ev.fee>0 else 'FREE')] %}
+        <div style="background:var(--surface2);border-radius:10px;padding:12px">
+          <div style="font-size:16px;margin-bottom:4px">{{ ico }}</div>
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px">{{ lbl }}</div>
+          <div style="font-size:13.5px;font-weight:600;color:var(--text);margin-top:2px">{{ val }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1;min-width:240px">
+    <div class="card anim d2" style="position:sticky;top:72px">
+      <h3 style="font-size:15px;font-weight:700;margin-bottom:16px">Registration</h3>
+      <div style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px">
+          <span>{{ ev.registered }} registered</span><span>{{ ev.capacity - ev.registered }} left</span>
+        </div>
+        <div style="height:5px;background:var(--border);border-radius:5px;overflow:hidden">
+          <div style="height:100%;width:{{ [(ev.registered/(ev.capacity or 1)*100)|int,100]|min }}%;background:linear-gradient(90deg,var(--accent),var(--purple));border-radius:5px"></div>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center">
+        <div style="font-size:26px;font-weight:800;color:#fff">{% if ev.fee>0 %}₹{{ ev.fee|int }}{% else %}FREE{% endif %}</div>
+        <div style="font-size:11px;color:var(--muted)">per person</div>
+      </div>
+
+      {% if reg %}
+        {% if reg.pass_status == 'approved' %}
+        <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:14px;text-align:center;margin-bottom:10px">
+          <div style="font-size:22px;margin-bottom:4px">✅</div>
+          <div style="font-size:13px;font-weight:700;color:#6ee7b7">Pass Approved!</div>
+        </div>
+        <a href="{{ url_for('view_pass', pass_id=reg.pass_id) }}" class="btn btn-success" style="width:100%;justify-content:center;margin-bottom:8px">🎟 View My Pass</a>
+        {% elif reg.pass_status == 'pending' %}
+        <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:14px;text-align:center;margin-bottom:10px">
+          <div style="font-size:22px;margin-bottom:4px">⏳</div>
+          <div style="font-size:13px;font-weight:700;color:#fcd34d">Awaiting Admin Approval</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">You'll be notified once approved</div>
+        </div>
+        {% else %}
+        <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:14px;text-align:center;margin-bottom:10px">
+          <div style="font-size:13px;color:#fca5a5">❌ Pass Rejected</div>
+        </div>
+        {% endif %}
+        <form method="POST" action="{{ url_for('cancel_registration', eid=ev.id) }}" onsubmit="return confirm('Cancel your registration?')">
+          <button class="btn btn-danger" style="width:100%;justify-content:center">Cancel Registration</button>
+        </form>
+      {% elif ev.registered >= ev.capacity %}
+        <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:13px;color:#fca5a5">🔴 Event is Full</div>
+        </div>
+      {% else %}
+        <form method="POST" action="{{ url_for('register_event', eid=ev.id) }}">
+          <button class="btn btn-primary" style="width:100%;justify-content:center">🎟 Register Now</button>
+        </form>
+        <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px">Pass issued after admin approval</p>
+      {% endif %}
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline" style="width:100%;justify-content:center;margin-top:10px">← Back</a>
+  </div>
+</div>
+{% endblock %}

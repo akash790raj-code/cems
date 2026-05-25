@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard – EventPass{% endblock %}
+{% block topbar_title %}Student Dashboard{% endblock %}
+{% block content %}
+
+<!-- WELCOME HERO -->
+<div class="hero anim">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+    <div>
+      <p style="font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:6px">Welcome back 👋</p>
+      <h2 style="font-size:24px;font-weight:800;color:#fff;margin-bottom:4px">{{ session.name }}</h2>
+      <p style="color:var(--muted);font-size:13px">Search for events below and register to get your pass!</p>
+    </div>
+    <a href="{{ url_for('my_passes') }}" class="btn btn-primary">🎟 My Passes</a>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stat-grid anim d1">
+  <div class="stat-card" style="--sc:rgba(34,211,238,.08)">
+    <div class="stat-icon">📅</div>
+    <div class="stat-num">{{ total_events }}</div>
+    <div class="stat-label">Events Available</div>
+  </div>
+  <div class="stat-card" style="--sc:rgba(167,139,250,.08)">
+    <div class="stat-icon">✍️</div>
+    <div class="stat-num">{{ total_my }}</div>
+    <div class="stat-label">Registered</div>
+  </div>
+  <div class="stat-card" style="--sc:rgba(16,185,129,.08)">
+    <div class="stat-icon">✅</div>
+    <div class="stat-num">{{ approved }}</div>
+    <div class="stat-label">Passes Approved</div>
+  </div>
+  <div class="stat-card" style="--sc:rgba(245,158,11,.08)">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-num">{{ pending }}</div>
+    <div class="stat-label">Pending Approval</div>
+  </div>
+</div>
+
+<!-- SEARCH & FILTER -->
+<div class="card anim d2" style="margin-bottom:22px">
+  <form method="GET" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+    <div style="flex:1;min-width:200px">
+      <label style="font-size:11px;color:var(--subtle);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.7px">🔍 Search Events</label>
+      <input name="q" value="{{ q }}" placeholder="Search by event name..." style="margin:0">
+    </div>
+    <div style="min-width:160px">
+      <label style="font-size:11px;color:var(--subtle);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.7px">Category</label>
+      <select name="cat" style="margin:0">
+        <option value="">All Categories</option>
+        {% for c in ['Technical','Cultural','Sports','Academic','General'] %}
+        <option value="{{ c }}" {% if cat==c %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn btn-primary" type="submit">Search</button>
+    {% if q or cat %}<a href="{{ url_for('dashboard') }}" class="btn btn-outline">✕ Clear</a>{% endif %}
+  </form>
+</div>
+
+<!-- EVENTS GRID -->
+{% if events %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px" class="anim d3">
+  <h3 style="font-size:16px;font-weight:700">
+    {% if q or cat %}Search Results ({{ events|length }}){% else %}🔥 Upcoming Events{% endif %}
+  </h3>
+</div>
+<div class="events-grid anim d3">
+  {% set icons = {'Technical':'💻','Cultural':'🎭','Sports':'⚽','Academic':'📚','General':'🎪'} %}
+  {% for ev in events %}
+  <div class="event-card">
+    <div class="event-banner {{ ev.category }}">{{ icons.get(ev.category,'🎪') }}</div>
+    <div class="event-body">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div class="event-cat cat-{{ ev.category }}">{{ ev.category }}</div>
+        {% if ev.id in my_regs %}
+          <span class="badge badge-approved" style="font-size:10px">✓ Registered</span>
+        {% endif %}
+      </div>
+      <div class="event-title">{{ ev.title }}</div>
+      <div class="event-meta">
+        <span>📅 {{ ev.date }}{% if ev.time %} · {{ ev.time }}{% endif %}</span>
+        <span>📍 {{ ev.venue }}</span>
+        <span>{% if ev.fee > 0 %}💰 ₹{{ ev.fee|int }}{% else %}🆓 Free Entry{% endif %}</span>
+      </div>
+      <div class="event-footer">
+        <div>
+          <div style="font-size:11px;color:var(--muted)">{{ ev.capacity - ev.registered }} seats left</div>
+          <div class="cap-bar"><div class="cap-fill" style="width:{{ [(ev.registered/(ev.capacity or 1)*100)|int,100]|min }}%"></div></div>
+        </div>
+        <a href="{{ url_for('event_detail', eid=ev.id) }}" class="btn btn-primary btn-sm">View →</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="empty anim d3">
+  <div class="empty-icon">🔍</div>
+  <h3 style="font-family:'Outfit',sans-serif;margin-bottom:8px">No events found</h3>
+  <p>{% if q or cat %}Try a different search term or category.{% else %}No upcoming events at the moment.{% endif %}</p>
+</div>
+{% endif %}
+
+{% endblock %}

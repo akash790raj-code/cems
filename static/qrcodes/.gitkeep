@@ -1,0 +1,2 @@
+# This file ensures the qrcodes directory is tracked by git
+# QR code images will be generated here at runtime

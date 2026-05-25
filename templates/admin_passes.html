@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% set pending_count = counts.pending %}
+{% block title %}Manage Passes – EventPass{% endblock %}
+{% block topbar_title %}Pass Management{% endblock %}
+{% block content %}
+
+<!-- HEADER -->
+<div class="hero anim">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+    <div>
+      <p style="font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--sage);margin-bottom:6px;font-family:'Inter',sans-serif;font-weight:600">🎟 Pass Control</p>
+      <h2 style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;font-family:'Poppins',sans-serif">Manage Student Passes</h2>
+      <p style="color:var(--sage);font-size:13px;font-family:'Inter',sans-serif">Approve or reject student event registrations</p>
+    </div>
+  </div>
+</div>
+
+<!-- STATUS TABS -->
+<div style="display:flex;gap:10px;margin-bottom:22px" class="anim d1">
+  {% for s, label, icon in [('pending','Pending','⏳'),('approved','Approved','✅'),('rejected','Rejected','❌')] %}
+  <a href="{{ url_for('admin_passes', status=s) }}"
+     style="display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;font-size:13.5px;font-weight:600;border:1px solid;transition:.2s;text-decoration:none;
+       {% if status==s %}
+         {% if s=='pending' %}background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.4);color:var(--gold)
+         {% elif s=='approved' %}background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4);color:var(--green)
+         {% else %}background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.4);color:var(--red){% endif %}
+       {% else %}background:var(--surface);border-color:var(--border);color:var(--subtle){% endif %}">
+    {{ icon }} {{ label }}
+    <span style="background:rgba(255,255,255,.1);border-radius:20px;padding:1px 8px;font-size:11px">{{ counts[s] }}</span>
+  </a>
+  {% endfor %}
+</div>
+
+<!-- PASSES LIST -->
+{% if passes %}
+  {% for p in passes %}
+  <div class="card anim" style="animation-delay:{{ loop.index0*0.05 }}s;margin-bottom:14px;border-color:{% if p.pass_status=='pending' %}rgba(245,158,11,.2){% elif p.pass_status=='approved' %}rgba(16,185,129,.2){% else %}rgba(239,68,68,.2){% endif %}">
+    <div style="display:flex;gap:20px;flex-wrap:wrap">
+
+      <!-- STUDENT INFO -->
+      <div style="flex:2;min-width:260px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <div style="width:44px;height:44px;background:linear-gradient(135deg,var(--teal),var(--forest));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--light-sage);flex-shrink:0">{{ p.name[0].upper() }}</div>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--text);font-family:'Poppins',sans-serif">{{ p.name }}</div>
+            <div style="font-size:11px;color:var(--sage);font-family:'Inter',sans-serif">Registered: {{ p.registered_at[:16] }}</div>
+          </div>
+          <span class="badge badge-{{ p.pass_status }}" style="margin-left:auto">
+            {% if p.pass_status=='pending' %}⏳{% elif p.pass_status=='approved' %}✅{% else %}❌{% endif %}
+            {{ p.pass_status|capitalize }}
+          </span>
+        </div>
+
+        <!-- STUDENT DETAILS GRID -->
+        <div style="background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:12px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--sage);margin-bottom:10px;font-family:'Inter',sans-serif;font-weight:600">👤 Student Details</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            {% for lbl,val in [('Student Name',p.name),("Father's Name",p.father_name),('Class Roll No',p.class_roll_no),('Exam Roll No',p.exam_roll_no),('Phone',p.phone),('Course',p.course or 'N/A'),('Branch',p.branch or 'N/A'),('Year',p.year or 'N/A')] %}
+            <div>
+              <div style="font-size:10px;color:var(--sage);margin-bottom:1px;font-family:'Inter',sans-serif">{{ lbl }}</div>
+              <div style="font-size:12.5px;color:var(--text);font-weight:{% if lbl=='Student Name' %}700{% else %}500{% endif %};font-family:'Inter',sans-serif">{{ val }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- EVENT DETAILS -->
+        <div style="background:var(--surface2);border:2px solid var(--border);border-radius:10px;padding:12px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--sage);margin-bottom:8px;font-family:'Inter',sans-serif;font-weight:600">📅 Event Details</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;font-family:'Poppins',sans-serif">{{ p.event_title }}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px">
+            <span style="font-size:12px;color:var(--sage);font-family:'Inter',sans-serif">📅 {{ p.event_date }}</span>
+            <span style="font-size:12px;color:var(--sage);font-family:'Inter',sans-serif">📍 {{ p.venue }}</span>
+            <span style="font-size:12px;color:var(--sage);font-family:'Inter',sans-serif">🎫 {{ p.category }}</span>
+            <span style="font-size:12px;color:var(--sage);font-family:'Inter',sans-serif">💰 {% if p.fee > 0 %}₹{{ p.fee|int }}{% else %}Free{% endif %}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div style="flex-shrink:0;min-width:200px;display:flex;flex-direction:column;justify-content:center;gap:10px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px">Pass Details</div>
+        <div style="font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace;word-break:break-all;margin-bottom:6px">
+          {% if p.serial_number %}
+            <div style="color:var(--gold);font-weight:700;margin-bottom:4px">{{ p.serial_number }}</div>
+          {% endif %}
+          {{ p.pass_id[:24].upper() }}...
+        </div>
+
+        {% if p.pass_status == 'pending' %}
+          <!-- APPROVE -->
+          <form method="POST" action="{{ url_for('approve_pass', pass_id=p.pass_id) }}">
+            <button class="btn btn-success" style="width:100%;justify-content:center">✅ Approve & Generate Pass</button>
+          </form>
+          <!-- REJECT with reason -->
+          <div>
+            <form method="POST" action="{{ url_for('reject_pass', pass_id=p.pass_id) }}" id="rf_{{ loop.index }}" onsubmit="return confirm('Reject this pass?')">
+              <input name="reason" placeholder="Rejection reason (optional)" style="margin-bottom:6px;font-size:12px">
+              <button class="btn btn-danger" style="width:100%;justify-content:center">❌ Reject Pass</button>
+            </form>
+          </div>
+
+        {% elif p.pass_status == 'approved' %}
+          {% if p.qr_path %}
+          <div style="background:#fff;border-radius:10px;padding:8px;display:inline-block;margin-bottom:8px;cursor:pointer;transition:all .3s ease;border:2px solid var(--border)" 
+               onclick="showPassPreview('{{ p.pass_id }}', '{{ p.qr_path }}', '{{ p.name }}', '{{ p.event_title }}')" 
+               title="Click to preview pass">
+            <img src="/{{ p.qr_path }}" style="width:100px;height:100px;display:block;border-radius:4px" alt="QR">
+            <div style="text-align:center;font-size:10px;color:var(--muted);margin-top:4px">Click to preview</div>
+          </div>
+          {% endif %}
+          
+          <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:9px;padding:10px;text-align:center;font-size:12px;color:var(--green);margin-bottom:10px">
+            ✅ Pass Issued<br>
+            {% if p.approved_at %}<span style="color:var(--muted);font-size:11px">{{ p.approved_at }}</span>{% endif %}
+          </div>
+          
+          <!-- REJECT APPROVED PASS -->
+          <div>
+            <form method="POST" action="{{ url_for('reject_pass', pass_id=p.pass_id) }}" onsubmit="return confirm('Are you sure you want to reject this approved pass?')">
+              <input name="reason" placeholder="Rejection reason" style="margin-bottom:6px;font-size:12px" required>
+              <button class="btn btn-danger" style="width:100%;justify-content:center;font-size:12px">❌ Reject Pass</button>
+            </form>
+          </div>
+
+        {% else %}
+          <!-- REJECTED STATUS - Show QR if exists and re-approve option -->
+          {% if p.qr_path %}
+          <div style="background:#fff;border-radius:10px;padding:8px;display:inline-block;margin-bottom:8px;cursor:pointer;transition:all .3s ease;border:2px solid rgba(239,68,68,.3)" 
+               onclick="showPassPreview('{{ p.pass_id }}', '{{ p.qr_path }}', '{{ p.name }}', '{{ p.event_title }}')" 
+               title="Click to preview rejected pass">
+            <img src="/{{ p.qr_path }}" style="width:100px;height:100px;display:block;border-radius:4px" alt="Rejected Pass QR">
+            <div style="text-align:center;font-size:10px;color:var(--red);margin-top:4px">Preview Rejected Pass</div>
+          </div>
+          {% endif %}
+          
+          <!-- RE-APPROVE option -->
+          <form method="POST" action="{{ url_for('reapprove_pass', pass_id=p.pass_id) }}">
+            <button class="btn btn-success" style="width:100%;justify-content:center;font-size:12px">🔄 Re-approve Pass</button>
+          </form>
+          
+          <!-- REJECT AGAIN option -->
+          <div style="margin-top:8px">
+            <form method="POST" action="{{ url_for('reject_pass', pass_id=p.pass_id) }}" onsubmit="return confirm('Reject this pass again?')">
+              <input name="reason" placeholder="New rejection reason" style="margin-bottom:6px;font-size:12px">
+              <button class="btn btn-danger" style="width:100%;justify-content:center;font-size:12px">❌ Reject Again</button>
+            </form>
+          </div>
+          
+          <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:9px;padding:10px;text-align:center;font-size:12px;color:var(--red);margin-top:8px">
+            ❌ Pass Rejected
+            {% if p.approved_at %}<br><span style="color:var(--muted);font-size:11px">{{ p.approved_at }}</span>{% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+{% else %}
+<div class="empty anim">
+  <div class="empty-icon">{% if status=='pending' %}⏳{% elif status=='approved' %}✅{% else %}❌{% endif %}</div>
+  <h3 style="font-size:18px;margin-bottom:8px">No {{ status }} passes</h3>
+  <p>{% if status=='pending' %}All registrations have been processed!{% else %}No passes in this category yet.{% endif %}</p>
+</div>
+{% endif %}
+
+<!-- PASS PREVIEW MODAL -->
+<div id="passModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:1000;backdrop-filter:blur(8px)">
+  <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem">
+    <div style="background:var(--surface);border-radius:20px;max-width:900px;width:100%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+      
+      <!-- Modal Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:1.5rem 2rem;border-bottom:2px solid var(--border)">
+        <div>
+          <h3 style="font-size:1.25rem;font-weight:700;color:var(--text);margin-bottom:0.25rem;font-family:'Poppins',sans-serif">Event Pass Preview</h3>
+          <p style="font-size:0.875rem;color:var(--muted)" id="modalSubtitle">Preview how the pass will appear when downloaded</p>
+        </div>
+        <button onclick="closePassModal()" style="background:none;border:none;font-size:1.5rem;color:var(--muted);cursor:pointer;padding:0.5rem;border-radius:8px;transition:all 0.3s ease" title="Close">✕</button>
+      </div>
+      
+      <!-- Modal Body -->
+      <div style="padding:2rem">
+        <div style="text-align:center;margin-bottom:2rem">
+          <div style="display:inline-block;background:var(--surface2);border:2px solid var(--border);border-radius:16px;padding:1rem;box-shadow:0 8px 24px rgba(22,29,35,0.1)">
+            <img id="modalPassImage" src="" style="max-width:100%;height:auto;border-radius:8px;display:block" alt="Event Pass">
+          </div>
+        </div>
+        
+        <!-- Download Section -->
+        <div style="text-align:center">
+          <a id="downloadLink" href="#" download style="display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,var(--teal),var(--forest));color:var(--light-sage);padding:0.875rem 1.5rem;border-radius:12px;text-decoration:none;font-weight:700;font-size:0.95rem;transition:all 0.3s ease;margin-right:1rem">
+            📥 Download Pass
+          </a>
+          <button onclick="closePassModal()" style="background:var(--surface2);border:2px solid var(--border);color:var(--subtle);padding:0.875rem 1.5rem;border-radius:12px;font-weight:600;font-size:0.95rem;cursor:pointer;transition:all 0.3s ease">
+            Close Preview
+          </button>
+        </div>
+        
+        <!-- Pass Info -->
+        <div style="margin-top:1.5rem;padding:1rem;background:var(--surface2);border-radius:12px;text-align:center">
+          <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem">This is how the pass will appear when downloaded by the student</p>
+          <p style="font-size:0.75rem;color:var(--sage)">The QR code contains all student and event details for verification</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showPassPreview(passId, qrPath, studentName, eventTitle) {
+  // Update modal content
+  document.getElementById('modalSubtitle').textContent = `${studentName} - ${eventTitle}`;
+  document.getElementById('modalPassImage').src = '/' + qrPath;
+  document.getElementById('downloadLink').href = '/admin/download_pass/' + passId;
+  
+  // Show modal
+  document.getElementById('passModal').style.display = 'block';
+  document.body.style.overflow = 'hidden'; // Prevent background scrolling
+}
+
+function closePassModal() {
+  document.getElementById('passModal').style.display = 'none';
+  document.body.style.overflow = 'auto'; // Restore scrolling
+}
+
+// Close modal when clicking outside
+document.getElementById('passModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closePassModal();
+  }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('passModal').style.display === 'block') {
+    closePassModal();
+  }
+});
+</script>
+
+{% endblock %}

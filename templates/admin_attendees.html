@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% set pending_count = 0 %}
+{% block title %}Attendees – {{ ev.title }}{% endblock %}
+{% block topbar_title %}Event Attendees{% endblock %}
+{% block content %}
+<div class="hero anim">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+    <div>
+      <p style="font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--accent);margin-bottom:5px">{{ ev.category }}</p>
+      <h2 style="font-size:20px;font-weight:800;margin-bottom:4px">{{ ev.title }}</h2>
+      <p style="color:var(--muted);font-size:13px">📅 {{ ev.date }} &nbsp;·&nbsp; 📍 {{ ev.venue }} &nbsp;·&nbsp; {{ attendees|length }} attendee(s) total</p>
+      {% if attendees|length != stats.total %}
+      <p style="color:var(--red);font-size:12px">⚠️ Showing {{ attendees|length }} of {{ stats.total }} attendees</p>
+      {% endif %}
+    </div>
+    <a href="{{ url_for('admin_events') }}" class="btn btn-outline">← Back</a>
+  </div>
+</div>
+
+<!-- STATISTICS CARDS -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px" class="anim d1">
+  <div class="card" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.2)">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:40px;height:40px;background:rgba(245,158,11,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">⏳</div>
+      <div>
+        <div style="font-size:24px;font-weight:800;color:var(--gold)">{{ stats.pending }}</div>
+        <div style="font-size:12px;color:var(--muted)">Pending Approval</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card" style="background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.2)">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:40px;height:40px;background:rgba(16,185,129,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">✅</div>
+      <div>
+        <div style="font-size:24px;font-weight:800;color:var(--green)">{{ stats.approved }}</div>
+        <div style="font-size:12px;color:var(--muted)">Approved Passes</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card" style="background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.2)">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:40px;height:40px;background:rgba(239,68,68,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">❌</div>
+      <div>
+        <div style="font-size:24px;font-weight:800;color:var(--red)">{{ stats.rejected }}</div>
+        <div style="font-size:12px;color:var(--muted)">Rejected Passes</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card" style="background:rgba(34,211,238,.1);border-color:rgba(34,211,238,.2)">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:40px;height:40px;background:rgba(34,211,238,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">👥</div>
+      <div>
+        <div style="font-size:24px;font-weight:800;color:var(--accent)">{{ stats.total }}</div>
+        <div style="font-size:12px;color:var(--muted)">Total Registered</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BULK ACTIONS -->
+<div class="card anim d2" style="background:rgba(70,130,180,.08);border-color:rgba(70,130,180,.2);margin-bottom:20px">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+    <div>
+      <h3 style="font-size:16px;font-weight:700;color:#4682b4;margin-bottom:4px">🎟 Pass Management</h3>
+      <p style="font-size:13px;color:var(--muted)">Generate passes with custom student selection or quick bulk operations</p>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <a href="{{ url_for('generate_passes_route', eid=ev.id) }}" class="btn" style="background:#4682b4;color:white;display:flex;align-items:center;gap:8px;font-weight:600;padding:12px 20px;border-radius:10px;box-shadow:0 2px 8px rgba(70,130,180,.2);transition:all 0.2s ease">
+        <span style="font-size:16px">🎟</span>
+        <span>Generate Pass</span>
+      </a>
+      
+      {% if stats.pending > 0 %}
+      <form method="POST" action="{{ url_for('bulk_approve_passes', eid=ev.id) }}" style="display:inline" 
+            onsubmit="return confirm('Generate passes for all {{ stats.pending }} pending registrations? Serial numbers will be assigned automatically (EVEPASS0001, EVEPASS0002, etc.)')">
+        <button class="btn btn-success" style="display:flex;align-items:center;gap:8px">
+          <span>✅</span>
+          <span>Quick Approve All ({{ stats.pending }})</span>
+        </button>
+      </form>
+      
+      <button onclick="showBulkRejectModal()" class="btn btn-danger" style="display:flex;align-items:center;gap:8px">
+        <span>❌</span>
+        <span>Reject All ({{ stats.pending }})</span>
+      </button>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ATTENDEES TABLE -->
+<div class="card anim d3">
+  {% if attendees %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Name</th><th>Father's Name</th><th>Class Roll</th><th>Exam Roll</th><th>Phone</th><th>Course</th><th>Branch</th><th>Pass Status</th><th>Serial Number</th><th>Registered</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for a in attendees %}
+      <tr>
+        <td style="font-size:12px;color:var(--muted)">{{ loop.index }}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#000;flex-shrink:0">{{ a.name[0].upper() }}</div>
+            <span style="font-size:13px;font-weight:500;color:var(--text)">{{ a.name }}</span>
+          </div>
+        </td>
+        <td style="font-size:12px">{{ a.father_name }}</td>
+        <td style="font-size:12px;font-weight:500">{{ a.class_roll_no }}</td>
+        <td style="font-size:12px;font-weight:500;color:var(--accent)">{{ a.exam_roll_no }}</td>
+        <td style="font-size:12px">{{ a.phone }}</td>
+        <td style="font-size:12px">{{ a.course or '—' }}</td>
+        <td style="font-size:12px">{{ a.branch or '—' }}</td>
+        <td><span class="badge badge-{{ a.pass_status }}">{% if a.pass_status=='approved' %}✅{% elif a.pass_status=='pending' %}⏳{% else %}❌{% endif %} {{ a.pass_status|capitalize }}</span></td>
+        <td style="font-size:12px;font-weight:600;color:var(--accent)">{{ a.serial_number or '—' }}</td>
+        <td style="font-size:11px;color:var(--muted)">{{ a.registered_at[:10] }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty"><div class="empty-icon">👥</div><p>No one has registered for this event yet.</p></div>
+  {% endif %}
+</div>
+
+<!-- BULK REJECT MODAL -->
+<div id="bulkRejectModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:var(--bg);border-radius:16px;padding:24px;max-width:400px;width:90%;border:1px solid var(--border)">
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:16px;color:var(--red)">❌ Bulk Reject Passes</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:20px">This will reject all {{ stats.pending }} pending passes. Please provide a reason:</p>
+    
+    <form method="POST" action="{{ url_for('bulk_reject_passes', eid=ev.id) }}">
+      <textarea name="reason" placeholder="Reason for rejection (optional)" 
+                style="width:100%;min-height:80px;margin-bottom:16px;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);resize:vertical"></textarea>
+      
+      <div style="display:flex;gap:12px;justify-content:flex-end">
+        <button type="button" onclick="hideBulkRejectModal()" class="btn btn-outline">Cancel</button>
+        <button type="submit" class="btn btn-danger">Reject All</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function showBulkRejectModal() {
+  document.getElementById('bulkRejectModal').style.display = 'flex';
+}
+
+function hideBulkRejectModal() {
+  document.getElementById('bulkRejectModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+document.getElementById('bulkRejectModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    hideBulkRejectModal();
+  }
+});
+</script>
+
+{% endblock %}

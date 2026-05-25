@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pass Verification – CEMS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #050d1a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 30px 16px 60px;
+    }
+
+    /* ── header ── */
+    .site-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .site-header h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #22d3ee;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .site-header p {
+      font-size: .8rem;
+      color: #475569;
+      margin-top: 4px;
+    }
+
+    /* ── card ── */
+    .card {
+      width: 100%;
+      max-width: 640px;
+      background: #0d1f3c;
+      border: 1px solid #1e3a5f;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    /* ── status banner ── */
+    .banner {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .banner.valid   { background: linear-gradient(135deg, #064e3b, #065f46); border-bottom: 1px solid #059669; }
+    .banner.invalid { background: linear-gradient(135deg, #450a0a, #7f1d1d); border-bottom: 1px solid #dc2626; }
+
+    .banner-icon {
+      font-size: 2.4rem;
+      line-height: 1;
+    }
+    .banner-text h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    .banner.valid   .banner-text h2 { color: #34d399; }
+    .banner.invalid .banner-text h2 { color: #f87171; }
+    .banner-text p {
+      font-size: .82rem;
+      color: #94a3b8;
+      margin-top: 3px;
+    }
+
+    /* ── body ── */
+    .card-body { padding: 24px; }
+
+    /* ── section ── */
+    .section-title {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #22d3ee;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #1e3a5f;
+    }
+
+    /* ── grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+
+    .field label {
+      display: block;
+      font-size: .68rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 2px;
+    }
+    .field span {
+      font-size: .92rem;
+      color: #f1f5f9;
+      font-weight: 500;
+    }
+
+    /* ── pass id pill ── */
+    .pass-id-row {
+      background: #0a1628;
+      border: 1px solid #1e3a5f;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .pass-id-row label {
+      font-size: .68rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      white-space: nowrap;
+    }
+    .pass-id-row code {
+      font-family: 'Courier New', monospace;
+      font-size: .82rem;
+      color: #22d3ee;
+      word-break: break-all;
+    }
+
+    /* ── status badge ── */
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .status-approved { background: #064e3b; color: #34d399; }
+    .status-pending  { background: #1c1917; color: #fbbf24; }
+    .status-rejected { background: #450a0a; color: #f87171; }
+
+    /* ── footer ── */
+    .verify-footer {
+      text-align: center;
+      margin-top: 28px;
+      font-size: .75rem;
+      color: #334155;
+    }
+    .verify-footer a {
+      color: #22d3ee;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="site-header">
+    <h1>College Event Management System</h1>
+    <p>Pass Verification Portal</p>
+  </div>
+
+  <div class="card">
+
+    {% if valid %}
+
+      {% set status_class = 'status-' ~ row['pass_status'] %}
+
+      <!-- banner -->
+      <div class="banner valid">
+        <div class="banner-icon">✅</div>
+        <div class="banner-text">
+          <h2>Valid Pass</h2>
+          <p>This pass has been verified successfully.</p>
+        </div>
+      </div>
+
+      <div class="card-body">
+
+        <!-- pass id -->
+        <div class="pass-id-row">
+          {% if row['serial_number'] %}
+          <label>Serial Number</label>
+          <code style="color:#fbbf24;font-weight:700">{{ row['serial_number'] }}</code>
+          <br>
+          {% endif %}
+          <label>Pass ID</label>
+          <code>{{ row['pass_id'] }}</code>
+          <span class="status-badge {{ status_class }}">{{ row['pass_status'] }}</span>
+        </div>
+
+        <!-- event details -->
+        <div class="section-title">Event Details</div>
+        <div class="grid">
+          <div class="field">
+            <label>Event Name</label>
+            <span>{{ row['event_title'] }}</span>
+          </div>
+          <div class="field">
+            <label>Category</label>
+            <span>{{ row['category'] }}</span>
+          </div>
+          <div class="field">
+            <label>Date</label>
+            <span>{{ row['event_date'] }}</span>
+          </div>
+          <div class="field">
+            <label>Time</label>
+            <span>{{ row['event_time'] or 'TBA' }}</span>
+          </div>
+          <div class="field">
+            <label>Venue</label>
+            <span>{{ row['venue'] }}</span>
+          </div>
+          <div class="field">
+            <label>Fee</label>
+            <span>{% if row['fee'] and row['fee']|float > 0 %}Rs. {{ row['fee'] }}{% else %}FREE{% endif %}</span>
+          </div>
+        </div>
+
+        <!-- student details -->
+        <div class="section-title">Student Details</div>
+        <div class="grid">
+          <div class="field">
+            <label>Full Name</label>
+            <span>{{ row['name'] }}</span>
+          </div>
+          <div class="field">
+            <label>Father's Name</label>
+            <span>{{ row['father_name'] }}</span>
+          </div>
+          <div class="field">
+            <label>Class Roll No</label>
+            <span>{{ row['class_roll_no'] }}</span>
+          </div>
+          <div class="field">
+            <label>Exam Roll No</label>
+            <span>{{ row['exam_roll_no'] }}</span>
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <span>{{ row['phone'] }}</span>
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <span>{{ row['email'] or '—' }}</span>
+          </div>
+          <div class="field">
+            <label>Course</label>
+            <span>{{ row['course'] or 'N/A' }}</span>
+          </div>
+          <div class="field">
+            <label>Branch</label>
+            <span>{{ row['branch'] or 'N/A' }}</span>
+          </div>
+          <div class="field">
+            <label>Year</label>
+            <span>{{ row['year'] or 'N/A' }}</span>
+          </div>
+          <div class="field">
+            <label>Registered At</label>
+            <span>{{ row['registered_at'] }}</span>
+          </div>
+          {% if row['approved_at'] %}
+          <div class="field">
+            <label>Approved At</label>
+            <span>{{ row['approved_at'] }}</span>
+          </div>
+          {% endif %}
+        </div>
+
+      </div><!-- /card-body -->
+
+    {% else %}
+
+      <!-- invalid banner -->
+      <div class="banner invalid">
+        <div class="banner-icon">❌</div>
+        <div class="banner-text">
+          <h2>Invalid Pass</h2>
+          <p>No pass found for ID: <code style="color:#fca5a5">{{ pass_id }}</code></p>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <p style="color:#94a3b8; font-size:.9rem; line-height:1.6;">
+          This QR code does not match any registered pass in our system.
+          It may have been cancelled, tampered with, or does not exist.
+          Please contact the event organiser.
+        </p>
+      </div>
+
+    {% endif %}
+
+  </div><!-- /card -->
+
+  <div class="verify-footer">
+    Verified by <a href="/">College Event Management System</a>
+  </div>
+
+</body>
+</html>

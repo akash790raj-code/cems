@@ -1,0 +1,420 @@
+{
+  "project_overview": {
+    "name": "EventPass - College Event Management System",
+    "type": "Web Application",
+    "purpose": "A comprehensive digital platform for managing college events, student registrations, and digital pass generation with QR code verification",
+    "target_users": ["College Students", "College Administrators", "Event Organizers"],
+    "main_goal": "Digitize and streamline the entire event management process from event creation to pass verification",
+    "technology_stack": {
+      "backend": "Python Flask",
+      "database": "SQLite",
+      "frontend": "HTML5, CSS3, JavaScript (Custom Design)",
+      "image_processing": "Pillow (PIL)",
+      "qr_generation": "qrcode library",
+      "pdf_generation": "ReportLab",
+      "deployment": "Gunicorn (Production)"
+    }
+  },
+  "system_architecture": {
+    "application_type": "Monolithic Web Application",
+    "architecture_pattern": "MVC (Model-View-Controller)",
+    "main_components": {
+      "app.py": "Main Flask application containing all routes, business logic, and database operations",
+      "templates/": "HTML templates using Jinja2 templating engine",
+      "static/": "Static assets including generated QR code images",
+      "cems.db": "SQLite database file (auto-created)",
+      "requirements.txt": "Python dependencies",
+      "wsgi.py": "WSGI entry point for production deployment"
+    },
+    "design_philosophy": "Single-file Flask application for simplicity and easy deployment"
+  },
+  "database_schema": {
+    "description": "SQLite database with 4 main tables handling users, events, registrations, and notifications",
+    "tables": {
+      "students": {
+        "purpose": "Store student user accounts and profile information",
+        "key_fields": [
+          "id (Primary Key)",
+          "name (Full Name)",
+          "class_roll_no (Class Roll Number)",
+          "exam_roll_no (Unique Exam Roll Number)",
+          "father_name",
+          "username (Unique Login ID)",
+          "phone (Unique Phone Number)",
+          "password (SHA256 Hashed)",
+          "course, branch, year (Academic Details)",
+          "email",
+          "created_at"
+        ],
+        "unique_constraints": ["exam_roll_no", "username", "phone"],
+        "login_methods": "Students can login using username OR exam_roll_no OR phone number"
+      },
+      "events": {
+        "purpose": "Store event information created by administrators",
+        "key_fields": [
+          "id (Primary Key)",
+          "title (Event Name)",
+          "description",
+          "category (Technical/Cultural/Sports/Academic/General)",
+          "date, time, venue",
+          "capacity (Maximum Attendees)",
+          "registered (Current Registration Count)",
+          "fee (Entry Fee, 0 for free events)",
+          "status (upcoming/completed)",
+          "created_at"
+        ],
+        "categories": ["Technical", "Cultural", "Sports", "Academic", "General"]
+      },
+      "registrations": {
+        "purpose": "Link students to events and track pass status",
+        "key_fields": [
+          "id (Primary Key)",
+          "student_id (Foreign Key to students)",
+          "event_id (Foreign Key to events)",
+          "pass_id (Unique Pass Identifier)",
+          "serial_number (Sequential Pass Number)",
+          "qr_path (Path to Generated QR Image)",
+          "pass_status (pending/approved/rejected)",
+          "approved_at, approved_by",
+          "registered_at"
+        ],
+        "workflow": "pending → approved/rejected",
+        "pass_generation": "Only happens after admin approval"
+      },
+      "notifications": {
+        "purpose": "Store system notifications for students",
+        "key_fields": [
+          "id (Primary Key)",
+          "student_id (Foreign Key)",
+          "message (Notification Text)",
+          "is_read (0/1 Boolean)",
+          "created_at"
+        ],
+        "triggers": ["New event creation", "Pass approval/rejection", "Admin announcements"]
+      }
+    },
+    "relationships": {
+      "students_to_registrations": "One-to-Many (One student can register for multiple events)",
+      "events_to_registrations": "One-to-Many (One event can have multiple registrations)",
+      "students_to_notifications": "One-to-Many (One student can have multiple notifications)"
+    }
+  },
+  "user_roles_and_permissions": {
+    "student_role": {
+      "authentication": {
+        "registration": "Self-registration with name, roll numbers, father's name, username, phone",
+        "login_options": ["username", "exam_roll_no", "phone"],
+        "password": "SHA256 hashed storage"
+      },
+      "permissions": [
+        "View and search events",
+        "Register for events",
+        "View own registrations and pass status",
+        "Download approved passes",
+        "View notifications",
+        "Update profile information",
+        "Cancel own registrations"
+      ],
+      "restrictions": [
+        "Cannot create or modify events",
+        "Cannot approve passes",
+        "Cannot view other students' information",
+        "Cannot access admin functions"
+      ]
+    },
+    "admin_role": {
+      "authentication": {
+        "login": "Single admin account (admin/admin@123)",
+        "session_management": "Separate admin session handling"
+      },
+      "permissions": [
+        "Full event CRUD operations",
+        "View all student registrations",
+        "Approve/reject passes",
+        "Generate and download passes",
+        "View student profiles",
+        "Send notifications to all/registered students",
+        "View system statistics",
+        "Bulk pass operations"
+      ],
+      "exclusive_features": [
+        "Event management dashboard",
+        "Pass approval system",
+        "Student management",
+        "System analytics"
+      ]
+    }
+  },
+  "core_features_and_workflows": {
+    "student_workflow": {
+      "registration_process": {
+        "step_1": "Student fills registration form with personal and academic details",
+        "step_2": "System validates unique constraints (username, phone, exam_roll_no)",
+        "step_3": "Password is hashed and account is created",
+        "step_4": "Student can immediately login and access dashboard"
+      },
+      "event_registration_process": {
+        "step_1": "Student browses events on dashboard with search/filter options",
+        "step_2": "Student views event details including date, venue, capacity, fee",
+        "step_3": "Student clicks 'Register Now' if event has available capacity",
+        "step_4": "Registration is created with 'pending' status",
+        "step_5": "Student receives notification about pending approval",
+        "step_6": "Student waits for admin approval to get downloadable pass"
+      },
+      "pass_management": {
+        "viewing": "Students can view all their registrations with status indicators",
+        "downloading": "Only approved passes can be downloaded as PNG images",
+        "verification": "Each pass contains QR code with embedded student and event data"
+      }
+    },
+    "admin_workflow": {
+      "event_management": {
+        "creation": "Admin creates events with title, description, category, date/time, venue, capacity, fee",
+        "editing": "Admin can modify event details anytime",
+        "deletion": "Admin can delete events (with confirmation)",
+        "categories": "Events are categorized as Technical, Cultural, Sports, Academic, or General"
+      },
+      "pass_approval_system": {
+        "review_process": "Admin reviews pending registrations with full student and event details",
+        "approval": "Admin approves registration → system generates QR pass with serial number",
+        "rejection": "Admin can reject with optional reason → student gets notification",
+        "bulk_operations": "Admin can approve multiple passes at once",
+        "re_approval": "Admin can re-approve previously rejected passes"
+      },
+      "student_management": {
+        "viewing": "Admin can view all registered students with search functionality",
+        "details": "Admin can see individual student profiles and registration history",
+        "communication": "Admin can send notifications to all students or only registered ones"
+      }
+    }
+  },
+  "qr_pass_system": {
+    "pass_generation": {
+      "trigger": "Only generated after admin approval",
+      "technology": "PIL (Python Imaging Library) for image creation",
+      "qr_library": "qrcode library for QR code generation",
+      "design": "Professional A5-landscape layout with college branding"
+    },
+    "pass_content": {
+      "visual_elements": [
+        "College Event Management System header",
+        "Event title and category",
+        "Student photo placeholder (avatar with initials)",
+        "Professional color scheme (sage green theme)",
+        "Serial number for tracking"
+      ],
+      "student_information": [
+        "Full name and father's name",
+        "Class roll number and exam roll number",
+        "Phone number",
+        "Course, branch, and year",
+        "Pass ID (unique identifier)"
+      ],
+      "event_information": [
+        "Event title and category",
+        "Date, time, and venue",
+        "Entry fee information",
+        "Event description"
+      ],
+      "qr_code_data": "Contains all above information as readable text for verification"
+    },
+    "pass_security": {
+      "unique_identifiers": ["Pass ID (UUID)", "Serial Number (Sequential)"],
+      "verification_methods": [
+        "QR code scanning reveals all embedded data",
+        "Web verification via /verify/{pass_id} URL",
+        "Serial number cross-reference"
+      ],
+      "anti_fraud": [
+        "Non-transferable passes (tied to specific student)",
+        "Unique QR codes per registration",
+        "Approval timestamp tracking",
+        "Admin approval trail"
+      ]
+    }
+  },
+  "user_interface_design": {
+    "design_philosophy": "Custom CSS design without external frameworks for full control",
+    "color_scheme": {
+      "primary": "Sage green theme (#d2e1cc, #0f444c, #114538, #5e8d83)",
+      "accent_colors": "Gold (#f59e0b), Green (#10b981), Red (#ef4444)",
+      "typography": "Inter (body), Poppins (headings), JetBrains Mono (code)"
+    },
+    "layout_structure": {
+      "sidebar_navigation": "Fixed left sidebar with role-based menu items",
+      "main_content": "Right panel with topbar and scrollable content area",
+      "responsive_design": "Grid layouts that adapt to different screen sizes"
+    },
+    "student_interface": {
+      "dashboard": "Event grid with search/filter, statistics cards, welcome hero",
+      "my_passes": "Card-based layout showing all registrations with status badges",
+      "event_detail": "Detailed event view with registration button and capacity indicator",
+      "notifications": "List of system notifications with read/unread status"
+    },
+    "admin_interface": {
+      "dashboard": "Statistics overview, recent registrations table, notification sender",
+      "event_management": "CRUD interface for events with category-based styling",
+      "pass_approval": "Detailed registration review with approve/reject actions",
+      "student_management": "Searchable student list with individual profile views"
+    }
+  },
+  "security_features": {
+    "authentication_security": {
+      "password_hashing": "SHA256 hashing for all passwords",
+      "session_management": "Flask session handling with secure secret key",
+      "rate_limiting": "Login attempt limiting (5 attempts per 15 minutes)",
+      "multiple_login_methods": "Username, exam roll number, or phone number"
+    },
+    "application_security": {
+      "security_headers": [
+        "X-Content-Type-Options: nosniff",
+        "X-Frame-Options: DENY",
+        "X-XSS-Protection: 1; mode=block",
+        "Strict-Transport-Security"
+      ],
+      "input_validation": "Server-side validation for all form inputs",
+      "sql_injection_prevention": "Parameterized queries throughout application",
+      "csrf_protection": "Form-based CSRF protection"
+    },
+    "data_protection": {
+      "unique_constraints": "Database-level uniqueness for critical fields",
+      "access_control": "Role-based access to different application areas",
+      "audit_trail": "Approval timestamps and admin tracking for passes"
+    }
+  },
+  "notification_system": {
+    "purpose": "Keep students informed about events and pass status changes",
+    "notification_triggers": {
+      "automatic": [
+        "New event creation (all students notified)",
+        "Pass approval (individual student)",
+        "Pass rejection (individual student with reason)"
+      ],
+      "manual": [
+        "Admin announcements to all students",
+        "Admin announcements to registered students only"
+      ]
+    },
+    "delivery_method": "In-app notifications with real-time polling",
+    "user_experience": {
+      "notification_badge": "Shows unread count in sidebar and topbar",
+      "notification_center": "Dedicated page for viewing all notifications",
+      "real_time_updates": "JavaScript polling every 25 seconds for new notifications"
+    }
+  },
+  "file_structure_explanation": {
+    "app_py": {
+      "purpose": "Main application file containing all Flask routes and business logic",
+      "key_sections": [
+        "Database initialization and schema creation",
+        "Authentication decorators and security functions",
+        "Student routes (dashboard, registration, passes)",
+        "Admin routes (event management, pass approval)",
+        "Helper functions (QR generation, notifications)",
+        "Security middleware and rate limiting"
+      ],
+      "size_note": "Large single file (~2000+ lines) for simplicity and easy deployment"
+    },
+    "templates_folder": {
+      "base_html": "Master template with sidebar navigation and common styling",
+      "student_templates": [
+        "dashboard.html (event browsing)",
+        "my_passes.html (pass management)",
+        "event_detail.html (event information and registration)",
+        "notifications.html (notification center)",
+        "profile.html (student profile management)"
+      ],
+      "admin_templates": [
+        "admin_dashboard.html (statistics and overview)",
+        "admin_events.html (event management table)",
+        "admin_passes.html (pass approval interface)",
+        "admin_students.html (student management)",
+        "admin_create_event.html (event creation form)"
+      ],
+      "auth_templates": [
+        "login.html (student login)",
+        "signup.html (student registration)",
+        "admin_login.html (admin login)"
+      ]
+    },
+    "static_qrcodes_folder": {
+      "purpose": "Storage for generated pass images",
+      "naming_convention": "EVEPASS{serial}_{pass_id_prefix}.png",
+      "file_management": "Images persist for download and verification"
+    }
+  },
+  "deployment_and_setup": {
+    "development_setup": {
+      "requirements": "Python 3.x with pip",
+      "installation": [
+        "pip install -r requirements.txt",
+        "python app.py (runs on localhost:5000)"
+      ],
+      "database": "SQLite database auto-created on first run with sample data"
+    },
+    "production_deployment": {
+      "wsgi_server": "Gunicorn for production serving",
+      "environment_variables": [
+        "FLASK_SECRET_KEY (application secret)",
+        "ADMIN_USER (admin username)",
+        "ADMIN_PASS (admin password)"
+      ],
+      "command": "gunicorn --bind 0.0.0.0:8000 wsgi:app"
+    },
+    "sample_data": {
+      "events": "4 sample events across different categories",
+      "students": "3 demo student accounts for testing",
+      "credentials": "admin/admin@123 for admin, various student accounts"
+    }
+  },
+  "key_differentiators": {
+    "unique_features": [
+      "Multiple login methods for students (username/roll number/phone)",
+      "Professional QR pass generation with embedded data",
+      "Real-time notification system",
+      "Comprehensive pass approval workflow",
+      "Category-based event organization",
+      "Capacity management with visual indicators",
+      "Serial number tracking for passes",
+      "Bulk pass operations for administrators"
+    ],
+    "technical_advantages": [
+      "Single-file Flask application for easy deployment",
+      "No external CSS frameworks - fully custom design",
+      "SQLite for zero-configuration database",
+      "PIL-based professional pass generation",
+      "Responsive design without JavaScript frameworks"
+    ]
+  },
+  "future_enhancement_possibilities": {
+    "technical_improvements": [
+      "Multi-tenancy for multiple colleges",
+      "Email notification integration",
+      "Mobile app development",
+      "Advanced analytics and reporting",
+      "Integration with college management systems",
+      "Biometric verification for passes"
+    ],
+    "feature_enhancements": [
+      "Event feedback and rating system",
+      "Payment gateway integration for paid events",
+      "Attendance tracking via QR scanning",
+      "Event photo gallery",
+      "Social sharing features",
+      "Calendar integration"
+    ]
+  },
+  "how_to_explain_to_ai": {
+    "project_summary": "This is a complete college event management system built with Flask that handles the entire lifecycle from event creation by admins to pass generation for students. The key workflow is: Admin creates events → Students register → Admin approves registrations → System generates QR passes → Students download and use passes for event entry.",
+    "key_concepts_for_ai": [
+      "Two-tier user system: Students (self-register) and Admin (single account)",
+      "Pass approval workflow: Registration → Pending → Admin Review → Approved/Rejected → Pass Generation",
+      "QR passes contain all student and event data as readable text for verification",
+      "Real-time notifications keep students informed of status changes",
+      "Professional pass design with college branding and security features"
+    ],
+    "technical_architecture_summary": "Monolithic Flask app with SQLite database, custom CSS design, PIL for image generation, and qrcode library for QR creation. All routes and business logic in single app.py file for simplicity.",
+    "database_relationships": "Students register for Events through Registrations table. Notifications link to Students. Pass approval creates QR images stored in static folder.",
+    "security_model": "Role-based access (student vs admin), password hashing, rate limiting, unique constraints, and audit trails for pass approvals."
+  }
+}

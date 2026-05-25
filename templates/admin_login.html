@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Login – EventPass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#d2e1cc;
+  --surface:#ffffff;
+  --surface2:#f8faf7;
+  --border:#5e8d83;
+  --accent:#0f444c;
+  --accent2:#114538;
+  --gold:#f59e0b;
+  --green:#10b981;
+  --red:#ef4444;
+  --text:#161d23;
+  --muted:#5e8d83;
+  --subtle:#114538;
+  --teal:#0f444c;
+  --forest:#114538;
+  --sage:#5e8d83;
+  --light-sage:#d2e1cc;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:linear-gradient(135deg,var(--bg) 0%,var(--surface2) 100%);
+  color:var(--text);font-family:'Inter',sans-serif;
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:1rem;position:relative;overflow-x:hidden;
+}
+
+body::before{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:radial-gradient(ellipse at center,rgba(15,68,76,0.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+.login-container{
+  background:var(--surface);border:2px solid var(--border);
+  border-radius:24px;padding:2rem;width:100%;max-width:420px;
+  box-shadow:0 20px 60px rgba(22,29,35,0.15);
+  position:relative;z-index:2;
+  margin:1rem auto;
+}
+
+.login-header{
+  text-align:center;margin-bottom:1.5rem;
+}
+
+.login-icon{
+  width:60px;height:60px;
+  background:linear-gradient(135deg,var(--gold),#d97706);
+  border-radius:16px;display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;margin:0 auto 1rem;
+  box-shadow:0 8px 24px rgba(245,158,11,0.3);
+  color:#000;font-weight:700;
+}
+
+.login-title{
+  font-size:1.5rem;font-weight:700;color:var(--text);
+  margin-bottom:0.25rem;font-family:'Poppins',sans-serif;
+}
+
+.login-subtitle{
+  color:var(--muted);font-size:0.9rem;margin-bottom:1rem;
+}
+
+.demo-creds{
+  background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(217,119,6,0.05));
+  border:2px solid rgba(245,158,11,0.2);
+  border-radius:12px;padding:1rem;margin-bottom:2rem;
+  text-align:center;
+}
+
+.demo-title{
+  font-size:0.8rem;font-weight:700;color:var(--gold);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;
+}
+
+.demo-item{
+  font-size:0.9rem;color:var(--subtle);margin-bottom:0.3rem;
+  font-family:'JetBrains Mono',monospace;font-weight:600;
+}
+
+.form-group{
+  margin-bottom:1.5rem;
+}
+
+label{
+  font-size:0.75rem;color:var(--subtle);display:block;
+  margin-bottom:0.5rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:1px;
+}
+
+input{
+  width:100%;background:var(--surface2);
+  border:2px solid var(--border);border-radius:12px;
+  padding:0.875rem 1rem;color:var(--text);
+  font-size:1rem;font-family:'Inter',sans-serif;
+  outline:none;transition:all 0.3s ease;
+}
+
+input:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 4px rgba(245,158,11,0.1);
+  transform:translateY(-1px);
+}
+
+input::placeholder{
+  color:var(--muted);
+}
+
+.btn{
+  width:100%;padding:1rem;
+  background:linear-gradient(135deg,var(--gold),#d97706);
+  color:#000;border:none;border-radius:12px;
+  font-size:1rem;font-weight:700;cursor:pointer;
+  font-family:'Inter',sans-serif;margin-top:0.5rem;
+  transition:all 0.3s ease;
+}
+
+.btn:hover{
+  opacity:0.9;transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(245,158,11,0.4);
+}
+
+.alert{
+  padding:0.875rem 1rem;border-radius:12px;
+  font-size:0.875rem;margin-bottom:1rem;
+  background:rgba(239,68,68,0.1);
+  border:2px solid rgba(239,68,68,0.3);
+  color:var(--red);font-weight:500;
+}
+
+.back-link{
+  text-align:center;margin-top:1.5rem;
+  font-size:0.875rem;color:var(--muted);
+}
+
+.back-link a{
+  color:var(--teal);font-weight:600;
+  text-decoration:none;transition:all 0.3s ease;
+}
+
+.back-link a:hover{
+  color:var(--forest);
+}
+
+.brand-link{
+  position:absolute;top:2rem;left:2rem;
+  display:flex;align-items:center;gap:0.75rem;
+  text-decoration:none;color:var(--text);
+  transition:all 0.3s ease;
+}
+
+.brand-logo{
+  width:40px;height:40px;
+  background:linear-gradient(135deg,var(--teal),var(--forest));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:1.25rem;color:var(--light-sage);
+}
+
+.brand-text{
+  font-size:1.25rem;font-weight:700;
+  font-family:'Poppins',sans-serif;
+}
+
+.brand-link:hover{
+  transform:translateY(-2px);
+}
+
+@media (max-width: 480px){
+  body{
+    padding:0.5rem;
+  }
+  .login-container{
+    padding:1.5rem;margin:0.5rem;
+    max-width:100%;
+  }
+  .brand-link{
+    position:static;margin-bottom:1rem;justify-content:center;
+  }
+  .login-title{
+    font-size:1.25rem;
+  }
+  .login-subtitle{
+    font-size:0.8rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<a href="{{ url_for('home') }}" class="brand-link">
+  <div class="brand-logo">🎓</div>
+  <div class="brand-text">EventPass</div>
+</a>
+
+<div class="login-container">
+  <div class="login-header">
+    <div class="login-icon">🛡️</div>
+    <h1 class="login-title">Administrator</h1>
+    <p class="login-subtitle">Access the admin control panel</p>
+  </div>
+  
+  <div class="demo-creds">
+    <div class="demo-title">Demo Credentials</div>
+    <div class="demo-item">Username: admin</div>
+    <div class="demo-item">Password: admin123</div>
+  </div>
+  
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat,msg in messages %}
+        <div class="alert">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  
+  <form method="POST">
+    <div class="form-group">
+      <label>Admin Username</label>
+      <input name="username" placeholder="Enter admin username" required autofocus>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter password" required>
+    </div>
+    <button class="btn" type="submit">
+      Login as Administrator
+    </button>
+  </form>
+  
+  <div class="back-link">
+    <a href="{{ url_for('login') }}">← Back to Student Login</a> | 
+    <a href="{{ url_for('home') }}">← Back to Home</a>
+  </div>
+</div>
+
+</body>
+</html>

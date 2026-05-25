@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}View Pass – Admin – EventPass{% endblock %}
+{% block topbar_title %}Admin Pass View{% endblock %}
+{% block content %}
+<div style="max-width:780px;margin:0 auto">
+  <div style="display:flex;gap:12px;margin-bottom:24px" class="anim">
+    <button onclick="window.close()" class="btn btn-outline">← Close Window</button>
+    {% if reg.pass_status == 'approved' and reg.qr_path %}
+    <a href="/{{ reg.qr_path }}" download class="btn btn-primary">⬇ Download Pass Image</a>
+    {% endif %}
+  </div>
+
+  <!-- PASS PREVIEW -->
+  <div class="anim d1" style="background:linear-gradient(135deg,var(--surface),var(--surface2));border:2px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 12px 32px rgba(15,68,76,.2)">
+    <!-- TOP BAR -->
+    <div style="background:linear-gradient(90deg,var(--teal),var(--forest),var(--sage));padding:16px 28px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:16px;font-weight:800;color:var(--light-sage);display:flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif">🎓 EventPass <span style="opacity:.7">·</span> <span style="font-size:12px;font-weight:500;opacity:.9;font-family:'Inter',sans-serif">Official Event Pass</span></div>
+      <span class="badge badge-{{ reg.pass_status }}" style="{% if reg.pass_status=='approved' %}background:rgba(210,225,204,.9);color:var(--forest);border-color:var(--sage){% endif %}">
+        {% if reg.pass_status=='approved' %}✅ APPROVED{% elif reg.pass_status=='pending' %}⏳ PENDING{% else %}❌ REJECTED{% endif %}
+      </span>
+    </div>
+
+    <div style="padding:32px;display:flex;gap:28px;flex-wrap:wrap;background:var(--surface)">
+      <!-- LEFT: DETAILS -->
+      <div style="flex:2;min-width:280px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--sage);margin-bottom:8px;font-family:'Inter',sans-serif;font-weight:600">{{ reg.category }}</div>
+        <h2 style="font-size:24px;font-weight:700;color:var(--text);margin-bottom:20px;line-height:1.2;font-family:'Poppins',sans-serif">{{ reg.title }}</h2>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+          {% for ico,lbl,val in [('📅','Date',reg.date),('⏰','Time',reg.time or 'TBA'),('📍','Venue',reg.venue),('🎫','Category',reg.category)] %}
+          <div style="background:var(--surface2);padding:12px;border-radius:12px;border:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--sage);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;font-family:'Inter',sans-serif;font-weight:600">{{ ico }} {{ lbl }}</div>
+            <div style="font-size:14px;color:var(--text);font-weight:500;font-family:'Inter',sans-serif">{{ val }}</div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div style="border-top:2px solid var(--border);padding-top:20px;margin-bottom:18px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--sage);margin-bottom:16px;font-family:'Inter',sans-serif;font-weight:600">👤 Student Details</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            {% for lbl,val in [('Full Name',stu.name),("Father's Name",stu.father_name),('Class Roll No',stu.class_roll_no),('Exam Roll No',stu.exam_roll_no),('Phone',stu.phone),('Course',stu.course or 'N/A'),('Branch',stu.branch or 'N/A'),('Year',stu.year or 'N/A')] %}
+            <div style="background:var(--surface2);padding:10px;border-radius:10px;border:1px solid var(--border)">
+              <div style="font-size:10px;color:var(--sage);margin-bottom:3px;font-family:'Inter',sans-serif;font-weight:500">{{ lbl }}</div>
+              <div style="font-size:13px;color:var(--text);font-weight:{% if lbl=='Full Name' %}700{% else %}600{% endif %};font-family:'Inter',sans-serif">{{ val }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div style="border-top:2px solid var(--border);padding-top:16px">
+          {% if reg.serial_number %}
+          <div style="font-size:10px;color:var(--sage);margin-bottom:4px;font-family:'Inter',sans-serif;font-weight:500">SERIAL NUMBER</div>
+          <div style="font-size:16px;color:var(--teal);font-family:'JetBrains Mono',monospace;font-weight:700;margin-bottom:12px;background:var(--surface2);padding:8px 12px;border-radius:8px;border:1px solid var(--border)">{{ reg.serial_number }}</div>
+          {% endif %}
+          <div style="font-size:10px;color:var(--sage);margin-bottom:4px;font-family:'Inter',sans-serif;font-weight:500">PASS ID</div>
+          <div style="font-size:12px;color:var(--forest);font-family:'JetBrains Mono',monospace;word-break:break-all;background:var(--surface2);padding:8px 12px;border-radius:8px;border:1px solid var(--border)">{{ reg.pass_id.upper() }}</div>
+          {% if reg.approved_at %}<div style="font-size:11px;color:var(--sage);margin-top:8px;font-family:'Inter',sans-serif">Approved: {{ reg.approved_at }}</div>{% endif %}
+          {% if reg.approved_by %}<div style="font-size:11px;color:var(--sage);margin-top:4px;font-family:'Inter',sans-serif">Approved by: {{ reg.approved_by }}</div>{% endif %}
+        </div>
+      </div>
+
+      <!-- RIGHT: QR -->
+      <div style="text-align:center;flex-shrink:0">
+        {% if reg.pass_status == 'approved' and reg.qr_path %}
+        <div style="background:#fff;border-radius:16px;padding:12px;display:inline-block;box-shadow:0 8px 24px rgba(15,68,76,.2);border:2px solid var(--border)">
+          <img src="/{{ reg.qr_path }}" alt="QR Pass" style="width:180px;height:180px;display:block;border-radius:8px">
+        </div>
+        <div style="font-size:12px;color:var(--sage);margin-top:12px;font-family:'Inter',sans-serif;font-weight:500">Scannable QR Code</div>
+        {% else %}
+        <div style="width:180px;height:180px;background:var(--surface2);border:2px dashed var(--border);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+          <span style="font-size:36px;opacity:.4;color:var(--sage)">🔲</span>
+          <span style="font-size:11px;color:var(--sage);text-align:center;padding:0 12px;font-family:'Inter',sans-serif">QR generated after<br>admin approval</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="background:var(--surface2);padding:14px 28px;border-top:2px solid var(--border);font-size:12px;color:var(--sage);text-align:center;font-family:'Inter',sans-serif">
+      This pass is non-transferable · Valid for one person only · Carry valid college ID
+    </div>
+  </div>
+
+  <!-- ADMIN ACTIONS -->
+  <div class="card anim d2" style="margin-top:20px">
+    <h3 style="font-size:16px;margin-bottom:12px;color:var(--teal);font-family:'Poppins',sans-serif;font-weight:600">🛡️ Admin Actions</h3>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      {% if reg.pass_status == 'pending' %}
+        <form method="POST" action="{{ url_for('approve_pass', pass_id=reg.pass_id) }}" style="display:inline">
+          <button class="btn btn-success">✅ Approve Pass</button>
+        </form>
+        <form method="POST" action="{{ url_for('reject_pass', pass_id=reg.pass_id) }}" style="display:inline" onsubmit="return confirm('Reject this pass?')">
+          <input name="reason" placeholder="Rejection reason" style="margin-right:8px;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:12px">
+          <button class="btn btn-danger">❌ Reject Pass</button>
+        </form>
+      {% elif reg.pass_status == 'rejected' %}
+        <form method="POST" action="{{ url_for('approve_pass', pass_id=reg.pass_id) }}" style="display:inline">
+          <button class="btn btn-success">🔄 Re-approve Pass</button>
+        </form>
+      {% else %}
+        <div style="color:var(--green);font-family:'Inter',sans-serif;font-weight:500">✅ Pass is already approved and issued</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+// Auto-close window when actions are performed
+document.addEventListener('DOMContentLoaded', function() {
+  const forms = document.querySelectorAll('form[method="POST"]');
+  forms.forEach(form => {
+    form.addEventListener('submit', function() {
+      setTimeout(() => {
+        window.close();
+      }, 1000);
+    });
+  });
+});
+</script>
+
+{% endblock %}

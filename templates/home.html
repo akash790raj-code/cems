@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EventPass - College Event Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#d2e1cc;
+  --surface:#ffffff;
+  --surface2:#f8faf7;
+  --border:#5e8d83;
+  --accent:#0f444c;
+  --accent2:#114538;
+  --gold:#f59e0b;
+  --green:#10b981;
+  --red:#ef4444;
+  --purple:#8b5cf6;
+  --text:#161d23;
+  --muted:#5e8d83;
+  --subtle:#114538;
+  --dark-slate:#161d23;
+  --teal:#0f444c;
+  --forest:#114538;
+  --sage:#5e8d83;
+  --light-sage:#d2e1cc;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;font-weight:400;line-height:1.6}
+a{text-decoration:none;color:inherit}
+h1,h2,h3,h4,h5,h6{font-family:'Poppins',sans-serif;font-weight:600;line-height:1.2}
+
+/* ── NAVIGATION ──────────────────── */
+.navbar{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);
+  border-bottom:2px solid var(--border);
+  padding:0 2rem;height:70px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 2px 20px rgba(22,29,35,0.1);
+}
+
+.nav-brand{display:flex;align-items:center;gap:12px}
+.nav-logo{
+  width:45px;height:45px;
+  background:linear-gradient(135deg,var(--teal),var(--forest));
+  border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:var(--light-sage);
+  box-shadow:0 4px 16px rgba(15,68,76,0.3);
+}
+.nav-text{
+  font-size:20px;font-weight:700;color:var(--text);
+  font-family:'Poppins',sans-serif;letter-spacing:-0.5px;
+}
+.nav-sub{
+  font-size:11px;color:var(--muted);margin-top:2px;
+  text-transform:uppercase;letter-spacing:1px;
+}
+
+.nav-links{display:flex;align-items:center;gap:2rem}
+.nav-link{
+  font-size:15px;font-weight:500;color:var(--subtle);
+  padding:8px 16px;border-radius:8px;transition:all 0.3s ease;
+}
+.nav-link:hover{color:var(--teal);background:rgba(15,68,76,0.1)}
+
+.nav-buttons{display:flex;align-items:center;gap:12px}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 20px;border-radius:10px;font-size:14px;
+  font-weight:600;cursor:pointer;border:none;
+  transition:all 0.3s ease;font-family:'Inter',sans-serif;
+}
+.btn-outline{
+  background:transparent;border:2px solid var(--border);color:var(--subtle);
+}
+.btn-outline:hover{
+  border-color:var(--teal);color:var(--teal);
+  background:rgba(15,68,76,0.05);transform:translateY(-2px);
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--teal),var(--forest));
+  color:var(--light-sage);font-weight:700;
+}
+.btn-primary:hover{
+  opacity:0.9;transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(15,68,76,0.4);
+}
+
+/* ── HERO SECTION ──────────────────── */
+.hero{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--bg) 0%,var(--surface2) 100%);
+  position:relative;overflow:hidden;padding:0 2rem;
+}
+
+.hero::before{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:radial-gradient(ellipse at center,rgba(15,68,76,0.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+.hero-content{
+  text-align:center;max-width:800px;z-index:2;position:relative;
+}
+
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(15,68,76,0.1);border:2px solid rgba(15,68,76,0.2);
+  color:var(--teal);padding:8px 16px;border-radius:50px;
+  font-size:13px;font-weight:600;margin-bottom:2rem;
+  animation:fadeUp 0.8s ease 0.2s both;
+}
+
+.hero-title{
+  font-size:4rem;font-weight:800;color:var(--text);
+  margin-bottom:1.5rem;font-family:'Poppins',sans-serif;
+  animation:fadeUp 0.8s ease 0.4s both;
+}
+
+.hero-subtitle{
+  font-size:1.3rem;color:var(--muted);margin-bottom:3rem;
+  font-weight:400;line-height:1.6;
+  animation:fadeUp 0.8s ease 0.6s both;
+}
+
+.hero-buttons{
+  display:flex;align-items:center;justify-content:center;gap:1rem;
+  animation:fadeUp 0.8s ease 0.8s both;
+}
+
+.btn-hero{
+  padding:16px 32px;font-size:16px;border-radius:12px;
+  font-weight:700;
+}
+
+/* ── ABOUT SECTION ──────────────────── */
+.about{
+  padding:6rem 2rem;background:var(--surface);
+}
+
+.container{max-width:1200px;margin:0 auto}
+
+.section-header{
+  text-align:center;margin-bottom:4rem;
+}
+
+.section-title{
+  font-size:2.5rem;font-weight:700;color:var(--text);
+  margin-bottom:1rem;font-family:'Poppins',sans-serif;
+}
+
+.section-subtitle{
+  font-size:1.1rem;color:var(--muted);max-width:600px;margin:0 auto;
+}
+
+.about-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:4rem;
+  align-items:center;margin-bottom:4rem;
+}
+
+.about-content h3{
+  font-size:1.8rem;font-weight:700;color:var(--text);
+  margin-bottom:1rem;font-family:'Poppins',sans-serif;
+}
+
+.about-content p{
+  font-size:1rem;color:var(--muted);margin-bottom:1.5rem;
+  line-height:1.7;
+}
+
+.about-card{
+  background:linear-gradient(135deg,var(--surface2),var(--surface));
+  border:2px solid var(--border);border-radius:20px;
+  padding:2rem;box-shadow:0 8px 24px rgba(22,29,35,0.1);
+}
+
+.creator-info{
+  background:linear-gradient(135deg,var(--teal),var(--forest));
+  color:var(--light-sage);border-radius:16px;padding:2rem;
+  text-align:center;
+}
+
+.creator-avatar{
+  width:80px;height:80px;border-radius:50%;
+  background:rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;font-weight:700;margin:0 auto 1rem;
+}
+
+.creator-name{
+  font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;
+}
+
+.creator-title{
+  font-size:1rem;opacity:0.9;margin-bottom:1rem;
+}
+
+.creator-desc{
+  font-size:0.95rem;opacity:0.8;line-height:1.6;
+}
+
+/* ── LOGIN SECTION ──────────────────── */
+.login-section{
+  padding:6rem 2rem;background:var(--bg);
+}
+
+.login-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:2rem;
+  max-width:900px;margin:0 auto;
+}
+
+.login-card{
+  background:var(--surface);border:2px solid var(--border);
+  border-radius:20px;padding:2.5rem;
+  box-shadow:0 8px 24px rgba(22,29,35,0.1);
+  transition:all 0.3s ease;
+}
+
+.login-card:hover{
+  border-color:var(--teal);transform:translateY(-4px);
+  box-shadow:0 20px 40px rgba(15,68,76,0.2);
+}
+
+.login-header{
+  text-align:center;margin-bottom:2rem;
+}
+
+.login-icon{
+  width:60px;height:60px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;margin:0 auto 1rem;
+}
+
+.admin-icon{
+  background:linear-gradient(135deg,var(--gold),#d97706);
+  color:#000;
+}
+
+.student-icon{
+  background:linear-gradient(135deg,var(--teal),var(--forest));
+  color:var(--light-sage);
+}
+
+.login-title{
+  font-size:1.5rem;font-weight:700;color:var(--text);
+  margin-bottom:0.5rem;
+}
+
+.login-subtitle{
+  font-size:0.9rem;color:var(--muted);
+}
+
+.demo-creds{
+  background:var(--surface2);border:2px solid var(--border);
+  border-radius:12px;padding:1rem;margin-bottom:2rem;
+}
+
+.demo-title{
+  font-size:0.8rem;font-weight:700;color:var(--subtle);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;
+}
+
+.demo-item{
+  font-size:0.85rem;color:var(--muted);margin-bottom:0.3rem;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ── FEATURES SECTION ──────────────────── */
+.features{
+  padding:6rem 2rem;background:var(--surface);
+}
+
+.features-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:2rem;margin-top:3rem;
+}
+
+.feature-card{
+  background:linear-gradient(135deg,var(--surface2),var(--surface));
+  border:2px solid var(--border);border-radius:18px;
+  padding:2rem;text-align:center;
+  transition:all 0.3s ease;
+  box-shadow:0 4px 16px rgba(22,29,35,0.08);
+}
+
+.feature-card:hover{
+  border-color:var(--teal);transform:translateY(-6px);
+  box-shadow:0 24px 60px rgba(15,68,76,0.25);
+}
+
+.feature-icon{
+  font-size:3rem;margin-bottom:1.5rem;
+  display:block;
+}
+
+.feature-title{
+  font-size:1.3rem;font-weight:700;color:var(--text);
+  margin-bottom:1rem;font-family:'Poppins',sans-serif;
+}
+
+.feature-desc{
+  font-size:0.95rem;color:var(--muted);line-height:1.6;
+}
+
+/* ── FOOTER ──────────────────── */
+.footer{
+  background:var(--dark-slate);color:var(--light-sage);
+  padding:3rem 2rem 2rem;
+}
+
+.footer-content{
+  max-width:1200px;margin:0 auto;
+  display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem;
+}
+
+.footer-brand{margin-bottom:1.5rem}
+
+.footer-logo{
+  display:flex;align-items:center;gap:12px;margin-bottom:1rem;
+}
+
+.footer-logo-icon{
+  width:40px;height:40px;
+  background:linear-gradient(135deg,var(--teal),var(--forest));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:var(--light-sage);
+}
+
+.footer-brand-text{
+  font-size:1.5rem;font-weight:700;
+  font-family:'Poppins',sans-serif;
+}
+
+.footer-desc{
+  font-size:0.9rem;opacity:0.8;line-height:1.6;
+  margin-bottom:1.5rem;
+}
+
+.footer-section h4{
+  font-size:1.1rem;font-weight:700;margin-bottom:1rem;
+  color:var(--light-sage);
+}
+
+.footer-links{list-style:none}
+
+.footer-links li{margin-bottom:0.5rem}
+
+.footer-links a{
+  font-size:0.9rem;opacity:0.7;transition:all 0.3s ease;
+}
+
+.footer-links a:hover{
+  opacity:1;color:var(--light-sage);
+}
+
+.footer-bottom{
+  border-top:2px solid rgba(94,141,131,0.3);
+  margin-top:2rem;padding-top:2rem;
+  text-align:center;
+}
+
+.footer-bottom p{
+  font-size:0.85rem;opacity:0.7;
+}
+
+/* ── ANIMATIONS ──────────────────── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(30px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.fade-up{animation:fadeUp 0.8s ease both}
+
+/* ── RESPONSIVE ──────────────────── */
+@media (max-width: 768px){
+  .navbar{padding:0 1rem}
+  .nav-links{display:none}
+  
+  .hero-title{font-size:2.5rem}
+  .hero-subtitle{font-size:1.1rem}
+  .hero-buttons{flex-direction:column;gap:0.5rem}
+  
+  .about-grid{grid-template-columns:1fr;gap:2rem}
+  .login-grid{grid-template-columns:1fr}
+  .footer-content{grid-template-columns:1fr;gap:2rem}
+  
+  .section-title{font-size:2rem}
+  .container{padding:0 1rem}
+}
+
+@media (max-width: 480px){
+  .hero{padding:0 1rem}
+  .hero-title{font-size:2rem}
+  .btn-hero{padding:12px 24px;font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">🎓</div>
+    <div>
+      <div class="nav-text">EventPass</div>
+      <div class="nav-sub">Event Management</div>
+    </div>
+  </div>
+  
+  <div class="nav-links">
+    <a href="#home" class="nav-link">Home</a>
+    <a href="#about" class="nav-link">About</a>
+    <a href="#login" class="nav-link">Login</a>
+    <a href="#features" class="nav-link">Features</a>
+  </div>
+  
+  <div class="nav-buttons">
+    <a href="#login" class="btn btn-outline">Login</a>
+    <a href="{{ url_for('signup') }}" class="btn btn-primary">Sign Up</a>
+  </div>
+</nav>
+
+<!-- HERO SECTION -->
+<section id="home" class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      🚀 Modern Event Management System
+    </div>
+    
+    <h1 class="hero-title">
+      Welcome to EventPass
+    </h1>
+    
+    <p class="hero-subtitle">
+      Streamline your college events with our comprehensive management system. 
+      Register for events, generate digital passes, and manage everything seamlessly.
+    </p>
+    
+    <div class="hero-buttons">
+      <a href="#login" class="btn btn-primary btn-hero">
+        Get Started
+      </a>
+      <a href="#features" class="btn btn-outline btn-hero">
+        Learn More
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT SECTION -->
+<section id="about" class="about">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">About EventPass</h2>
+      <p class="section-subtitle">
+        A comprehensive solution for managing college events and student participation
+      </p>
+    </div>
+    
+    <div class="about-grid">
+      <div class="about-content">
+        <h3>What is EventPass?</h3>
+        <p>
+          EventPass is a modern, web-based College Event Management System designed to streamline 
+          the entire event lifecycle - from registration to pass generation and verification. 
+          Built with cutting-edge technology, it provides a seamless experience for both 
+          students and administrators.
+        </p>
+        <p>
+          The system features secure authentication, real-time notifications, digital pass 
+          generation with QR codes, and comprehensive admin controls. Whether it's a technical 
+          fest, cultural night, or academic seminar, EventPass handles it all efficiently.
+        </p>
+      </div>
+      
+      <div class="about-card">
+        <div class="creator-info">
+          <div class="creator-avatar">AR</div>
+          <div class="creator-name">Akash Raj</div>
+          <div class="creator-title">MCA IV Semester Student</div>
+          <div class="creator-desc">
+            Developed as a final year project at DSPMU Ranchi, this system represents 
+            the culmination of advanced web development skills and modern software 
+            engineering practices.
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="about-grid" style="margin-top: 3rem;">
+      <div class="about-card">
+        <h3 style="color: var(--teal); margin-bottom: 1rem;">🎯 Project Vision</h3>
+        <p>
+          To create a digital-first approach to event management that eliminates 
+          paperwork, reduces administrative overhead, and provides real-time insights 
+          into event participation and engagement.
+        </p>
+      </div>
+      
+      <div class="about-card">
+        <h3 style="color: var(--forest); margin-bottom: 1rem;">🏛️ Academic Excellence</h3>
+        <p>
+          This project showcases advanced concepts in web development, database design, 
+          security implementation, and user experience design - all essential skills 
+          for modern software development.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGIN SECTION -->
+<section id="login" class="login-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Access Your Account</h2>
+      <p class="section-subtitle">
+        Choose your login type to access the system
+      </p>
+    </div>
+    
+    <div class="login-grid">
+      <!-- Admin Login -->
+      <div class="login-card">
+        <div class="login-header">
+          <div class="login-icon admin-icon">🛡️</div>
+          <h3 class="login-title">Administrator</h3>
+          <p class="login-subtitle">Manage events, students, and passes</p>
+        </div>
+        
+        <div class="demo-creds">
+          <div class="demo-title">Demo Credentials</div>
+          <div class="demo-item">Username: admin</div>
+          <div class="demo-item">Password: admin123</div>
+        </div>
+        
+        <a href="{{ url_for('admin_login') }}" class="btn btn-primary" style="width: 100%; justify-content: center;">
+          Admin Login
+        </a>
+      </div>
+      
+      <!-- Student Login -->
+      <div class="login-card">
+        <div class="login-header">
+          <div class="login-icon student-icon">👨‍🎓</div>
+          <h3 class="login-title">Student Portal</h3>
+          <p class="login-subtitle">Register for events and manage passes</p>
+        </div>
+        
+        <div class="demo-creds">
+          <div class="demo-title">Demo Credentials</div>
+          <div class="demo-item">Username: student1</div>
+          <div class="demo-item">Password: pass123</div>
+        </div>
+        
+        <a href="{{ url_for('login') }}" class="btn btn-primary" style="width: 100%; justify-content: center;">
+          Student Login
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section id="features" class="features">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Powerful Features</h2>
+      <p class="section-subtitle">
+        Everything you need to manage college events efficiently
+      </p>
+    </div>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🎟️</span>
+        <h3 class="feature-title">Digital Pass Generation</h3>
+        <p class="feature-desc">
+          Generate secure digital passes with QR codes for easy verification 
+          and contactless entry management.
+        </p>
+      </div>
+      
+      <div class="feature-card">
+        <span class="feature-icon">📱</span>
+        <h3 class="feature-title">Mobile-First Design</h3>
+        <p class="feature-desc">
+          Responsive design that works perfectly on all devices - desktop, 
+          tablet, and mobile phones.
+        </p>
+      </div>
+      
+      <div class="feature-card">
+        <span class="feature-icon">🔔</span>
+        <h3 class="feature-title">Real-time Notifications</h3>
+        <p class="feature-desc">
+          Instant notifications for event updates, pass approvals, and 
+          important announcements.
+        </p>
+      </div>
+      
+      <div class="feature-card">
+        <span class="feature-icon">📊</span>
+        <h3 class="feature-title">Analytics Dashboard</h3>
+        <p class="feature-desc">
+          Comprehensive analytics and reporting for event participation, 
+          attendance tracking, and insights.
+        </p>
+      </div>
+      
+      <div class="feature-card">
+        <span class="feature-icon">🔒</span>
+        <h3 class="feature-title">Secure Authentication</h3>
+        <p class="feature-desc">
+          Multi-level security with encrypted passwords, session management, 
+          and role-based access control.
+        </p>
+      </div>
+      
+      <div class="feature-card">
+        <span class="feature-icon">⚡</span>
+        <h3 class="feature-title">Fast & Reliable</h3>
+        <p class="feature-desc">
+          Built with modern web technologies for optimal performance, 
+          speed, and reliability.
+        </p>
+      </div>
+      
+      <div class="feature-card">
+        <span class="feature-icon">🎨</span>
+        <h3 class="feature-title">Beautiful Interface</h3>
+        <p class="feature-desc">
+          Clean, modern, and intuitive user interface designed for 
+          excellent user experience.
+        </p>
+      </div>
+      
+      <div class="feature-card">
+        <span class="feature-icon">📄</span>
+        <h3 class="feature-title">PDF Export</h3>
+        <p class="feature-desc">
+          Export passes and reports as PDF documents for printing 
+          and offline access.
+        </p>
+      </div>
+      
+      <div class="feature-card">
+        <span class="feature-icon">🔍</span>
+        <h3 class="feature-title">QR Code Verification</h3>
+        <p class="feature-desc">
+          Quick and secure pass verification using QR code scanning 
+          at event entrances.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="footer-logo-icon">🎓</div>
+        <div class="footer-brand-text">EventPass</div>
+      </div>
+      <p class="footer-desc">
+        A comprehensive College Event Management System designed to streamline 
+        event organization, student registration, and pass management for 
+        educational institutions.
+      </p>
+      <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 1rem;">
+        Developed by <strong>Akash Raj</strong><br>
+        MCA IV Semester, DSPMU Ranchi<br>
+        Final Year Project 2024
+      </p>
+    </div>
+    
+    <div class="footer-section">
+      <h4>Quick Links</h4>
+      <ul class="footer-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#login">Login</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+      </ul>
+    </div>
+    
+    <div class="footer-section">
+      <h4>System Info</h4>
+      <ul class="footer-links">
+        <li><a href="#">Admin Panel</a></li>
+        <li><a href="#">Student Portal</a></li>
+        <li><a href="#">Event Management</a></li>
+        <li><a href="#">Pass Generation</a></li>
+        <li><a href="#">QR Verification</a></li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="footer-bottom">
+    <p>
+      &copy; 2026 EventPass - College Event Management System. 
+      Developed as Final Year Project by Akash Raj, MCA IV Sem, DSPMU Ranchi.
+    </p>
+  </div>
+</footer>
+
+<script>
+// Smooth scrolling for navigation links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  });
+});
+
+// Add scroll effect to navbar
+window.addEventListener('scroll', function() {
+  const navbar = document.querySelector('.navbar');
+  if (window.scrollY > 50) {
+    navbar.style.background = 'rgba(255,255,255,0.98)';
+    navbar.style.boxShadow = '0 2px 30px rgba(22,29,35,0.15)';
+  } else {
+    navbar.style.background = 'rgba(255,255,255,0.95)';
+    navbar.style.boxShadow = '0 2px 20px rgba(22,29,35,0.1)';
+  }
+});
+
+// Animate elements on scroll
+const observerOptions = {
+  threshold: 0.1,
+  rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver(function(entries) {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('fade-up');
+    }
+  });
+}, observerOptions);
+
+// Observe all cards and sections
+document.querySelectorAll('.feature-card, .about-card, .login-card').forEach(el => {
+  observer.observe(el);
+});
+</script>
+
+</body>
+</html>

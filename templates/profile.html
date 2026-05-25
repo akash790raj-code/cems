@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Profile – EventPass{% endblock %}
+{% block topbar_title %}My Profile{% endblock %}
+{% block content %}
+<div style="max-width:640px;margin:0 auto">
+  <div style="text-align:center;margin-bottom:26px" class="anim">
+    <div style="width:76px;height:76px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;color:#000;font-family:'Outfit',sans-serif;margin:0 auto 16px;box-shadow:0 0 30px rgba(34,211,238,.25)">{{ stu.name[0].upper() }}</div>
+    <h2 style="font-size:22px;font-weight:800;color:#fff">{{ stu.name }}</h2>
+    <p style="color:var(--muted);font-size:13px;margin-top:4px">@{{ stu.username }} · 🎟 {{ total_regs }} event(s) registered</p>
+  </div>
+
+  <!-- READ-ONLY INFO -->
+  <div class="card anim d1" style="margin-bottom:16px">
+    <h3 style="font-size:14px;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px">🔒 Account Details (Read Only)</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      {% for lbl,val in [('Full Name',stu.name),("Father's Name",stu.father_name),('Class Roll No',stu.class_roll_no),('Exam Roll No',stu.exam_roll_no),('Username',stu.username),('Phone',stu.phone)] %}
+      <div style="background:var(--surface2);border-radius:9px;padding:11px">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">{{ lbl }}</div>
+        <div style="font-size:13.5px;color:var(--text);font-weight:500">{{ val }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- EDITABLE INFO -->
+  <div class="card anim d2">
+    <h3 style="font-size:14px;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px">✏️ Update Details</h3>
+    <form method="POST">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="form-group"><label>Course</label><input name="course" value="{{ stu.course or '' }}" placeholder="e.g. MCA"></div>
+        <div class="form-group"><label>Branch</label><input name="branch" value="{{ stu.branch or '' }}" placeholder="e.g. Computer Science"></div>
+        <div class="form-group"><label>Year / Semester</label><input name="year" value="{{ stu.year or '' }}" placeholder="e.g. 2nd Year"></div>
+        <div class="form-group"><label>Email</label><input type="email" name="email" value="{{ stu.email or '' }}" placeholder="your@email.com"></div>
+      </div>
+      <button class="btn btn-primary" type="submit">💾 Save Changes</button>
+    </form>
+  </div>
+
+  <div class="card anim d3" style="margin-top:14px">
+    <h3 style="font-size:14px;margin-bottom:10px">Account</h3>
+    <a href="{{ url_for('logout') }}" class="btn btn-danger" onclick="return confirm('Sign out?')">⏻ Sign Out</a>
+  </div>
+</div>
+{% endblock %}

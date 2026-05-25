@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% set pending_count = stats.pending_passes %}
+{% block title %}Admin Dashboard – EventPass{% endblock %}
+{% block topbar_title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="hero anim">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+    <div>
+      <p style="font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin-bottom:6px">🛡 Administrator</p>
+      <h2 style="font-size:24px;font-weight:800;color:#fff;margin-bottom:4px">Control Panel</h2>
+      <p style="color:var(--muted);font-size:13px">Manage events, approve passes, notify students</p>
+    </div>
+    <a href="{{ url_for('admin_create_event') }}" class="btn btn-gold">➕ Create Event</a>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stat-grid anim d1">
+  <div class="stat-card" style="--sc:rgba(34,211,238,.08)"><div class="stat-icon">👥</div><div class="stat-num">{{ stats.total_students }}</div><div class="stat-label">Total Students</div></div>
+  <div class="stat-card" style="--sc:rgba(167,139,250,.08)"><div class="stat-icon">📅</div><div class="stat-num">{{ stats.total_events }}</div><div class="stat-label">Total Events</div></div>
+  <div class="stat-card" style="--sc:rgba(245,158,11,.08)"><div class="stat-icon">⏳</div><div class="stat-num" style="color:var(--gold)">{{ stats.pending_passes }}</div><div class="stat-label">Pending Passes</div></div>
+  <div class="stat-card" style="--sc:rgba(16,185,129,.08)"><div class="stat-icon">✅</div><div class="stat-num" style="color:var(--green)">{{ stats.approved_passes }}</div><div class="stat-label">Approved Passes</div></div>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;flex-wrap:wrap">
+  <!-- RECENT REGISTRATIONS -->
+  <div class="card anim d2">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h3 style="font-size:15px;font-weight:700">Recent Registrations</h3>
+      <a href="{{ url_for('admin_passes') }}" class="btn btn-outline btn-sm">View All →</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Student</th><th>Event</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for r in recent %}
+        <tr>
+          <td style="color:var(--text);font-weight:500">{{ r.sname }}</td>
+          <td>{{ r.etitle[:28] }}</td>
+          <td style="font-size:11px">{{ r.registered_at[:10] }}</td>
+          <td><span class="badge badge-{{ r.pass_status }}">{{ r.pass_status|capitalize }}</span></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SEND NOTIFICATION -->
+  <div class="card anim d3">
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:16px">📢 Send Notification</h3>
+    <form method="POST" action="{{ url_for('admin_notify') }}">
+      <div class="form-group">
+        <label>Message</label>
+        <textarea name="message" rows="4" placeholder="Type your message here..." style="resize:vertical"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Send To</label>
+        <select name="target">
+          <option value="all">All Students</option>
+          <option value="registered">Registered Students Only</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center">Send 🔔</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
