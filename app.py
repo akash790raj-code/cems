@@ -177,13 +177,13 @@ def backup_database():
         print(f"Backup failed: {e}")
         return None
 
-init_db()
-
 # ─────────────────────────────────────────────────
 #  HELPERS
 # ─────────────────────────────────────────────────
 def hpw(pw):
     return hashlib.sha256(pw.encode()).hexdigest()
+
+init_db()
 
 def login_required(f):
     @wraps(f)
