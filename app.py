@@ -146,10 +146,10 @@ def init_db():
         # Seed sample events
         if db.execute("SELECT COUNT(*) FROM events").fetchone()[0] == 0:
             sample_events = [
-                ('Tech Fest 2024',   'Annual technology festival with hackathon, coding contest & robotics', 'Technical', '2024-12-20', '10:00 AM', 'Main Auditorium', 300, 0),
-                ('Cultural Night',   'Grand evening of music, dance & drama by talented students',           'Cultural',  '2024-12-22', '06:00 PM', 'Open Air Theatre', 200, 50),
-                ('Sports Week',      'Inter-college tournament – cricket, football & badminton',             'Sports',    '2024-12-25', '08:00 AM', 'Sports Complex',   150, 0),
-                ('AI Guest Lecture', 'Industry expert on Artificial Intelligence & future of technology',    'Academic',  '2024-12-18', '11:00 AM', 'Seminar Hall',     100, 0),
+                ('Tech Fest 2026',   'Annual technology festival with hackathon, coding contest & robotics', 'Technical', '2026-12-20', '10:00 AM', 'Main Auditorium', 300, 0),
+                ('Cultural Night',   'Grand evening of music, dance & drama by talented students',           'Cultural',  '2026-12-22', '06:00 PM', 'Open Air Theatre', 200, 50),
+                ('Sports Week',      'Inter-college tournament – cricket, football & badminton',             'Sports',    '2026-12-25', '08:00 AM', 'Sports Complex',   150, 0),
+                ('AI Guest Lecture', 'Industry expert on Artificial Intelligence & future of technology',    'Academic',  '2026-12-18', '11:00 AM', 'Seminar Hall',     100, 0),
             ]
             for ev in sample_events:
                 db.execute("INSERT INTO events(title,description,category,date,time,venue,capacity,fee) VALUES(?,?,?,?,?,?,?,?)", ev)
